@@ -1,5 +1,5 @@
-import { TherapeuticEngine } from '../therapeutic-engine';
-import { EmotionalState } from '../types';
+import { TherapeuticEngine } from '../clinical/therapeutic-engine';
+import { EmotionalState } from '../clinical/types';
 
 describe('TherapeuticEngine', () => {
   let therapeuticEngine: TherapeuticEngine;

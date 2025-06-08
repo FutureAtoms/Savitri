@@ -1,5 +1,5 @@
-import { EnhancedEmotionAnalyzer } from '../enhanced-emotion-analyzer';
-import { EmotionFeatures } from '../types';
+import { EnhancedEmotionAnalyzer } from '../clinical/enhanced-emotion-analyzer';
+import { EmotionFeatures } from '../clinical/types';
 
 describe('EnhancedEmotionAnalyzer', () => {
   let emotionAnalyzer: EnhancedEmotionAnalyzer;

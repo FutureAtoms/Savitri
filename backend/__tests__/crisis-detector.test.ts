@@ -1,5 +1,5 @@
-import { CrisisDetector } from '../crisis-detector';
-import { EmotionalState } from '../types';
+import { CrisisDetector } from '../clinical/crisis-detector';
+import { EmotionalState } from '../clinical/types';
 
 describe('CrisisDetector', () => {
   let crisisDetector: CrisisDetector;

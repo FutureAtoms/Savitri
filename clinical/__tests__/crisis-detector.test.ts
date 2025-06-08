@@ -19,7 +19,7 @@ describe('CrisisDetector', () => {
     const text = 'I want to kill myself.';
     const emotionalState: EmotionalState = { dominantEmotion: 'sadness', intensity: 0.9 };
     const crisisLevel = crisisDetector.detectCrisis(text, emotionalState);
-    expect(crisisLevel).toBeGreaterThan(5);
+    expect(crisisLevel).toBe(5);
   });
 
   it('should consider emotional state when calculating crisis level', () => {

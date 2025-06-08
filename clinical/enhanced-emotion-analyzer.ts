@@ -16,7 +16,7 @@ export class EnhancedEmotionAnalyzer {
 
   async extractFeatures(audioData: Float32Array): Promise<EmotionFeatures> {
     // This is a placeholder implementation.
-    // In a real implementation, this would extract features from the audio data.
+    // In a real implementation, this would use a library like Meyda to extract audio features.
     return {
       pitch: 150,
       pitchVariability: 0.1,

@@ -49,14 +49,5 @@ export interface TherapeuticResponse {
   response: string;
   emotionalValidation: string;
   therapeuticSuggestions: string[];
-  homework: string[];
-  boundaries: string[];
-}
-
-export interface TherapyContext {
-    currentProtocol: string;
-    sessionDuration: number;
-    previousResponses: TherapeuticResponse[];
-    patientGoals: string[];
-    riskFactors: string[];
+  isCrisis: boolean;
 } 

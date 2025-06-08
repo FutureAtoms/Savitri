@@ -1,0 +1,17 @@
+{
+  "name": "live-audio",
+  "version": "1.0.0",
+  "description": "Clinical Intelligence Layer",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^27.0.0",
+    "jest": "^27.0.0",
+    "ts-jest": "^27.0.0",
+    "typescript": "^5.4.5"
+  }
+}

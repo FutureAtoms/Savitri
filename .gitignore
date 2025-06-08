@@ -1,0 +1,53 @@
+# General
+.DS_Store
+/build/
+/dist/
+*.iml
+.idea/
+
+# Dart & Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+/savitri_app/build/
+/savitri_app/.idea/
+/savitri_app/.dart_tool/
+/savitri_app/.metadata
+/savitri_app/savitri_app.iml
+/savitri_app/.flutter-plugins
+/savitri_app/.flutter-plugins-dependencies
+/savitri_app/pubspec.lock
+
+# iOS
+/savitri_app/ios/Pods/
+/savitri_app/ios/Podfile.lock
+/savitri_app/ios/.symlinks/
+/savitri_app/ios/Flutter/App.framework
+/savitri_app/ios/Flutter/engine
+/savitri_app/ios/Flutter/flutter_assets
+/savitri_app/ios/Flutter/.build/
+/savitri_app/ios/Runner/GeneratedPluginRegistrant.h
+/savitri_app/ios/Runner/GeneratedPluginRegistrant.m
+/savitri_app/ios/Runner.xcworkspace/
+/savitri_app/ios/Runner.xcodeproj/project.xcworkspace/
+/savitri_app/ios/Runner.xcodeproj/xcuserdata/
+
+# Android
+/savitri_app/android/.gradle/
+/savitri_app/android/app/build/
+/savitri_app/android/build/
+/savitri_app/android/local.properties
+
+# Node
+node_modules/
+package-lock.json
+/savitri_app/clinical-intelligence/node_modules/
+/savitri_app/clinical-intelligence/dist/
+/savitri_app/clinical-intelligence/package-lock.json
+/live-audio/node_modules/
+/live-audio/package-lock.json
+
+# Task files
+tasks.json
+tasks-table.md 

@@ -1,385 +1,60 @@
-backend
-docs
-gitignore
-README.md
-savitri_app
-simple.test.ts
-tasks-table.md
-tasks.json
+# Savitri Project
 
-./backend:
-__tests__
-clinical
-jest.config.js
-package.json
-persistence
+This project is a mental wellness companion application.
 
-./backend/__tests__:
-crisis-detector.test.ts
-enhanced-emotion-analyzer.test.ts
-models.test.ts
-therapeutic-engine.test.ts
+## Project Structure
 
-./backend/clinical:
-crisis-detector.ts
-enhanced-emotion-analyzer.ts
-therapeutic-engine.ts
-types.ts
+### `savitri_app`
 
-./backend/persistence:
-db.ts
-models
-tsconfig.json
+The Flutter mobile application.
 
-./backend/persistence/models:
-Interaction.ts
-Session.ts
-User.ts
+#### `lib/main.dart`
+- The entry point for the Flutter application. It sets up the material app and defines the initial route.
 
-./docs:
-actionable-task-checklist.md
-AUTHENTICATION_GUIDE.md
-code-implementation-examples.md
-compass_artifact_wf-20415853-23c8-4905-bb59-acbe18c9151d_text_markdown.md
-database-schema.md
-gemini-live-quick-start.md
-implementation-schedule-live-audio.md
-live-audio-modification-guide.md
-MONITORING_GUIDE.md
-psychology-chatbot-implementation-plan.md
-psychology-chatbot-requirements-live-audio.md
-voice-first-technical-implementation.md
+#### `lib/screens`
+- `welcome_screen.dart`: The initial screen that welcomes the user and provides a "Get Started" button to navigate to the benefits screen.
+- `benefits_screen.dart`: This screen outlines the benefits of using the application and navigates to the consent screen.
+- `consent_screen.dart`: A screen that displays a consent form which the user must scroll through and agree to before proceeding to the login screen.
+- `login_screen.dart`: Handles user login with email and password, and navigates to the MFA screen on success.
+- `mfa_screen.dart`: Handles two-factor authentication for the user and navigates to the settings screen on success.
+- `settings_screen.dart`: A placeholder screen for application settings.
 
-./savitri_app:
-analysis_options.yaml
-android
-integration_test
-ios
-lib
-linux
-macos
-pubspec.yaml
-test
-web
-windows
+#### `lib/services`
+- `auth_service.dart`: Provides authentication services for login, registration, and MFA verification by making API calls to the backend.
+- `enhanced_therapeutic_voice_service.dart`: Manages microphone permissions and audio recording functionality.
 
-./savitri_app/android:
-app
-build.gradle.kts
-gradle
-gradle.properties
-settings.gradle.kts
+#### `lib/widgets`
+- `breathing_guide.dart`: A widget that provides a visual guide for 4-7-8 breathing exercises using an animated circle.
+- `crisis_banner.dart`: A banner that is displayed to the user if a crisis is detected, providing a number to call for support.
+- `emotion_indicator.dart`: A widget that displays the user's emotional state (calm, neutral, distressed) as a colored circle.
+- `therapeutic_button.dart`: A reusable, styled button for use throughout the application.
+- `therapeutic_visual_3d.dart`: A widget that displays a 3D visualization that changes color based on the user's emotional state.
 
-./savitri_app/android/app:
-build.gradle.kts
-src
+### `live-audio`
 
-./savitri_app/android/app/src:
-debug
-main
-profile
+The frontend for the live audio visualization, built with Lit, TypeScript, and Three.js.
 
-./savitri_app/android/app/src/debug:
-AndroidManifest.xml
+- `index.tsx`: The main entry point for the live audio visualization. It handles audio input and output, connects to the Gemini AI for live interaction, and renders the 3D visualization.
+- `analyser.ts`: A class that analyzes audio data from an `AudioNode` to extract frequency data for visualization.
+- `backdrop-shader.ts`: GLSL shaders for creating a gradient with noise for the scene's background.
+- `sphere-shader.ts`: A GLSL vertex shader that deforms a sphere based on live audio data from the user and the AI.
+- `utils.ts`: Utility functions for encoding `Float32Array` audio data to base64 `Int16Array` and decoding it back.
+- `visual-3d.ts`: A LitElement that sets up and manages the 3D scene using Three.js for the audio visualization. It includes a sphere that deforms and a camera that moves based on audio input.
+- `visual.ts`: A LitElement that creates a 2D visualization of audio data using a canvas, displaying the audio as gradient bars.
+- `vite.config.ts`: The Vite configuration file, which sets up environment variables and path aliases.
 
-./savitri_app/android/app/src/main:
-AndroidManifest.xml
-kotlin
-res
+### `backend`
 
-./savitri_app/android/app/src/main/kotlin:
-com
+The backend server for the application, built with Node.js and TypeScript.
 
-./savitri_app/android/app/src/main/kotlin/com:
-example
+#### `clinical`
+- `crisis-detector.ts`: Detects crisis situations based on keywords in user input text and the user's emotional state.
+- `enhanced-emotion-analyzer.ts`: A placeholder for a service that would analyze emotional state from audio features using a machine learning model.
+- `therapeutic-engine.ts`: Generates therapeutic responses based on user input and emotional state. It will provide a crisis response if a crisis is detected.
+- `types.ts`: Defines the TypeScript types and interfaces used throughout the clinical components of the backend.
 
-./savitri_app/android/app/src/main/kotlin/com/example:
-savitri_app
-
-./savitri_app/android/app/src/main/kotlin/com/example/savitri_app:
-MainActivity.kt
-
-./savitri_app/android/app/src/main/res:
-drawable
-drawable-v21
-mipmap-hdpi
-mipmap-mdpi
-mipmap-xhdpi
-mipmap-xxhdpi
-mipmap-xxxhdpi
-values
-values-night
-
-./savitri_app/android/app/src/main/res/drawable:
-launch_background.xml
-
-./savitri_app/android/app/src/main/res/drawable-v21:
-launch_background.xml
-
-./savitri_app/android/app/src/main/res/mipmap-hdpi:
-ic_launcher.png
-
-./savitri_app/android/app/src/main/res/mipmap-mdpi:
-ic_launcher.png
-
-./savitri_app/android/app/src/main/res/mipmap-xhdpi:
-ic_launcher.png
-
-./savitri_app/android/app/src/main/res/mipmap-xxhdpi:
-ic_launcher.png
-
-./savitri_app/android/app/src/main/res/mipmap-xxxhdpi:
-ic_launcher.png
-
-./savitri_app/android/app/src/main/res/values:
-styles.xml
-
-./savitri_app/android/app/src/main/res/values-night:
-styles.xml
-
-./savitri_app/android/app/src/profile:
-AndroidManifest.xml
-
-./savitri_app/android/gradle:
-wrapper
-
-./savitri_app/android/gradle/wrapper:
-gradle-wrapper.properties
-
-./savitri_app/integration_test:
-login_flow_test.dart
-onboarding_flow_test.dart
-
-./savitri_app/ios:
-Flutter
-Podfile
-Runner
-Runner.xcodeproj
-RunnerTests
-
-./savitri_app/ios/Flutter:
-AppFrameworkInfo.plist
-Debug.xcconfig
-Release.xcconfig
-
-./savitri_app/ios/Runner:
-AppDelegate.swift
-Assets.xcassets
-Base.lproj
-Info.plist
-Runner-Bridging-Header.h
-
-./savitri_app/ios/Runner/Assets.xcassets:
-AppIcon.appiconset
-LaunchImage.imageset
-
-./savitri_app/ios/Runner/Assets.xcassets/AppIcon.appiconset:
-Contents.json
-Icon-App-1024x1024@1x.png
-Icon-App-20x20@1x.png
-Icon-App-20x20@2x.png
-Icon-App-20x20@3x.png
-Icon-App-29x29@1x.png
-Icon-App-29x29@2x.png
-Icon-App-29x29@3x.png
-Icon-App-40x40@1x.png
-Icon-App-40x40@2x.png
-Icon-App-40x40@3x.png
-Icon-App-60x60@2x.png
-Icon-App-60x60@3x.png
-Icon-App-76x76@1x.png
-Icon-App-76x76@2x.png
-Icon-App-83.5x83.5@2x.png
-
-./savitri_app/ios/Runner/Assets.xcassets/LaunchImage.imageset:
-Contents.json
-LaunchImage.png
-LaunchImage@2x.png
-LaunchImage@3x.png
-README.md
-
-./savitri_app/ios/Runner/Base.lproj:
-LaunchScreen.storyboard
-Main.storyboard
-
-./savitri_app/ios/Runner.xcodeproj:
-project.pbxproj
-xcshareddata
-
-./savitri_app/ios/Runner.xcodeproj/xcshareddata:
-xcschemes
-
-./savitri_app/ios/Runner.xcodeproj/xcshareddata/xcschemes:
-Runner.xcscheme
-
-./savitri_app/ios/RunnerTests:
-RunnerTests.swift
-
-./savitri_app/lib:
-main.dart
-screens
-services
-widgets
-
-./savitri_app/lib/screens:
-benefits_screen.dart
-consent_screen.dart
-login_screen.dart
-mfa_screen.dart
-settings_screen.dart
-welcome_screen.dart
-
-./savitri_app/lib/services:
-auth_service.dart
-enhanced_therapeutic_voice_service.dart
-
-./savitri_app/lib/widgets:
-breathing_guide.dart
-crisis_banner.dart
-emotion_indicator.dart
-therapeutic_button.dart
-therapeutic_visual_3d.dart
-
-./savitri_app/linux:
-CMakeLists.txt
-flutter
-runner
-
-./savitri_app/linux/flutter:
-CMakeLists.txt
-generated_plugin_registrant.cc
-generated_plugin_registrant.h
-generated_plugins.cmake
-
-./savitri_app/linux/runner:
-CMakeLists.txt
-main.cc
-my_application.cc
-my_application.h
-
-./savitri_app/macos:
-Flutter
-Podfile
-Runner
-Runner.xcodeproj
-Runner.xcworkspace
-RunnerTests
-
-./savitri_app/macos/Flutter:
-Flutter-Debug.xcconfig
-Flutter-Release.xcconfig
-GeneratedPluginRegistrant.swift
-
-./savitri_app/macos/Runner:
-AppDelegate.swift
-Assets.xcassets
-Base.lproj
-Configs
-DebugProfile.entitlements
-Info.plist
-MainFlutterWindow.swift
-Release.entitlements
-
-./savitri_app/macos/Runner/Assets.xcassets:
-AppIcon.appiconset
-
-./savitri_app/macos/Runner/Assets.xcassets/AppIcon.appiconset:
-app_icon_1024.png
-app_icon_128.png
-app_icon_16.png
-app_icon_256.png
-app_icon_32.png
-app_icon_512.png
-app_icon_64.png
-Contents.json
-
-./savitri_app/macos/Runner/Base.lproj:
-MainMenu.xib
-
-./savitri_app/macos/Runner/Configs:
-AppInfo.xcconfig
-Debug.xcconfig
-Release.xcconfig
-Warnings.xcconfig
-
-./savitri_app/macos/Runner.xcodeproj:
-project.pbxproj
-project.xcworkspace
-xcshareddata
-
-./savitri_app/macos/Runner.xcodeproj/project.xcworkspace:
-xcshareddata
-
-./savitri_app/macos/Runner.xcodeproj/project.xcworkspace/xcshareddata:
-IDEWorkspaceChecks.plist
-
-./savitri_app/macos/Runner.xcodeproj/xcshareddata:
-xcschemes
-
-./savitri_app/macos/Runner.xcodeproj/xcshareddata/xcschemes:
-Runner.xcscheme
-
-./savitri_app/macos/Runner.xcworkspace:
-contents.xcworkspacedata
-xcshareddata
-
-./savitri_app/macos/Runner.xcworkspace/xcshareddata:
-IDEWorkspaceChecks.plist
-
-./savitri_app/macos/RunnerTests:
-RunnerTests.swift
-
-./savitri_app/test:
-services
-widget_test.dart
-widgets
-
-./savitri_app/test/services:
-auth_service_test.dart
-auth_service_test.mocks.dart
-
-./savitri_app/test/widgets:
-breathing_guide_test.dart
-crisis_banner_test.dart
-emotion_indicator_test.dart
-therapeutic_button_test.dart
-
-./savitri_app/web:
-favicon.png
-icons
-index.html
-manifest.json
-
-./savitri_app/web/icons:
-Icon-192.png
-Icon-512.png
-Icon-maskable-192.png
-Icon-maskable-512.png
-
-./savitri_app/windows:
-CMakeLists.txt
-flutter
-runner
-
-./savitri_app/windows/flutter:
-CMakeLists.txt
-generated_plugin_registrant.cc
-generated_plugin_registrant.h
-generated_plugins.cmake
-
-./savitri_app/windows/runner:
-CMakeLists.txt
-flutter_window.cpp
-flutter_window.h
-main.cpp
-resource.h
-resources
-runner.exe.manifest
-Runner.rc
-utils.cpp
-utils.h
-win32_window.cpp
-win32_window.h
-
-./savitri_app/windows/runner/resources:
-app_icon.ico
+#### `persistence`
+- `db.ts`: Handles the connection to the MongoDB database using Mongoose.
+- `models/User.ts`: Mongoose schema for the `User` model, which includes the user's email and a reference to their sessions.
+- `models/Session.ts`: Mongoose schema for the `Session` model, which includes a reference to the user, start and end times, and a list of interactions.
+- `models/Interaction.ts`: Mongoose schema for the `Interaction` model, which represents a single turn in a conversation and includes the user's input, emotional state, and the therapeutic response.

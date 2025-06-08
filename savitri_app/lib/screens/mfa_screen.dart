@@ -51,6 +51,7 @@ class _MfaScreenState extends State<MfaScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             TextField(
+              key: const ValueKey('mfa_field'),
               controller: _mfaController,
               decoration: const InputDecoration(labelText: 'MFA Code'),
               keyboardType: TextInputType.number,

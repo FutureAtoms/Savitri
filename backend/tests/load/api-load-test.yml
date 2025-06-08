@@ -1,0 +1,127 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 50
+      name: "Ramp up load"
+    - duration: 300
+      arrivalRate: 100
+      name: "Sustained load"
+  processor: "./load-test-functions.js"
+  variables:
+    testEmails:
+      - "loadtest1@example.com"
+      - "loadtest2@example.com"
+      - "loadtest3@example.com"
+      - "loadtest4@example.com"
+      - "loadtest5@example.com"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "User Registration and Login Flow"
+    weight: 20
+    flow:
+      - post:
+          url: "/api/auth/register"
+          json:
+            email: "{{ $randomString() }}@loadtest.com"
+            password: "TestPassword123!"
+            name: "Load Test User"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      - think: 2
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ email }}"
+            password: "TestPassword123!"
+
+  - name: "Therapeutic Session Flow"
+    weight: 60
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "{{ $randomString() }}@test.com"
+            password: "TestPassword123!"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      - think: 1
+      - post:
+          url: "/api/sessions/start"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            type: "therapy"
+      - loop:
+          count: 10
+          steps:
+            - post:
+                url: "/api/therapeutic/response"
+                headers:
+                  Authorization: "Bearer {{ authToken }}"
+                json:
+                  userInput: "{{ $randomString() }}"
+                  emotionalState:
+                    valence: "{{ $randomNumber(-1, 1) }}"
+                    arousal: "{{ $randomNumber(0, 1) }}"
+                    dominance: "{{ $randomNumber(0, 1) }}"
+                    primaryEmotion: "anxiety"
+                capture:
+                  - json: "$.response"
+                    as: "therapeuticResponse"
+            - think: 3
+      - post:
+          url: "/api/sessions/end"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+
+  - name: "Crisis Detection Flow"
+    weight: 10
+    flow:
+      - post:
+          url: "/api/auth/login"
+          json:
+            email: "crisis-test@example.com"
+            password: "TestPassword123!"
+          capture:
+            - json: "$.token"
+              as: "authToken"
+      - post:
+          url: "/api/therapeutic/response"
+          headers:
+            Authorization: "Bearer {{ authToken }}"
+          json:
+            userInput: "I'm feeling really anxious about my presentation tomorrow"
+            emotionalState:
+              valence: -0.7
+              arousal: 0.8
+              dominance: 0.2
+              primaryEmotion: "anxiety"
+          expect:
+            - statusCode: 200
+            - contentType: json
+            - hasProperty: "response"
+
+  - name: "API Health Check"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/health"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/health/db"
+          expect:
+            - statusCode: 200
+      - get:
+          url: "/api/health/services"
+          expect:
+            - statusCode: 200

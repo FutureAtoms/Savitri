@@ -66,11 +66,11 @@ flutter:
     - assets/sounds/
     - assets/models/
   
-  fonts:
-    - family: SFProDisplay
-      fonts:
-        - asset: assets/fonts/SF-Pro-Display-Regular.otf
-        - asset: assets/fonts/SF-Pro-Display-Medium.otf
-          weight: 500
-        - asset: assets/fonts/SF-Pro-Display-Bold.otf
-          weight: 700
+  # fonts:
+  #   - family: SFProDisplay
+  #     fonts:
+  #       - asset: assets/fonts/SF-Pro-Display-Regular.otf
+  #       - asset: assets/fonts/SF-Pro-Display-Medium.otf
+  #         weight: 500
+  #       - asset: assets/fonts/SF-Pro-Display-Bold.otf
+  #         weight: 700

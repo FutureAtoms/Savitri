@@ -1,4 +1,4 @@
-export type TherapeuticProtocol = 'CBT' | 'DBT' | 'ACT' | 'Mindfulness' | 'Crisis Intervention';
+export type TherapeuticProtocol = 'CBT' | 'DBT' | 'ACT' | 'Mindfulness' | 'Crisis Intervention' | 'Integrative';
 
 export interface TherapeuticTechnique {
   name: string;

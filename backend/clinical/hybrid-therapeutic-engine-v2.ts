@@ -70,20 +70,24 @@ export class HybridTherapeuticEngine {
     // 2. Determine best retrieval strategy
     const strategy = await this.determineRetrievalStrategy(context);
     
-    // 3. Retrieve relevant content based on strategy
+    // 3. Determine the protocol based on the context
+    const selectedProtocol = this.selectTherapeuticProtocol(context);
+    
+    // 4. Retrieve relevant content based on strategy
     const retrievalResults = await this.retrieveContent(context, strategy);
     
-    // 4. Get historical context from Graphiti
+    // 5. Get historical context from Graphiti
     const historicalContext = await this.getHistoricalContext(context.userId);
     
-    // 5. Generate response using retrieved content
+    // 6. Generate response using retrieved content and selected protocol
     const response = await this.synthesizeResponse(
       context,
       retrievalResults,
-      historicalContext
+      historicalContext,
+      selectedProtocol
     );
 
-    // 6. Store interaction in Graphiti for future sessions
+    // 7. Store interaction in Graphiti for future sessions
     if (context.userId) {
       await this.storeInteraction(context, response);
     }
@@ -209,20 +213,64 @@ export class HybridTherapeuticEngine {
       context.emotionalState
     );
 
-    for (const technique of techniques) {
+    // If no techniques found, create a default one
+    if (techniques.length === 0) {
       results.push({
-        content: technique.content,
+        content: this.getDefaultContent(protocol),
         source: 'CAG',
-        relevanceScore: technique.relevanceScore,
+        relevanceScore: 0.9,
         protocol: protocol,
         metadata: {
-          technique: technique.name,
-          evidenceLevel: technique.evidenceLevel
+          technique: this.getDefaultTechnique(protocol),
+          evidenceLevel: 'high'
         }
       });
+    } else {
+      for (const technique of techniques) {
+        results.push({
+          content: technique.content,
+          source: 'CAG',
+          relevanceScore: technique.relevanceScore,
+          protocol: protocol,
+          metadata: {
+            technique: technique.name,
+            evidenceLevel: technique.evidenceLevel
+          }
+        });
+      }
     }
 
     return results;
+  }
+
+  private getDefaultContent(protocol: TherapeuticProtocol): string {
+    switch (protocol) {
+      case 'CBT':
+        return 'Let\'s work on understanding and reshaping these thoughts together. CBT helps us identify patterns in our thinking that might be causing distress.';
+      case 'DBT':
+        return 'I can see you\'re experiencing intense emotions. DBT teaches us skills to manage these feelings effectively.';
+      case 'ACT':
+        return 'Let\'s explore what truly matters to you and how we can move toward those values, even with these difficult feelings.';
+      case 'Mindfulness':
+        return 'Let\'s take a moment to ground ourselves in the present. Mindfulness can help us observe our experiences without judgment.';
+      default:
+        return 'I\'m here to support you through this. Let\'s explore what you\'re experiencing together.';
+    }
+  }
+
+  private getDefaultTechnique(protocol: TherapeuticProtocol): string {
+    switch (protocol) {
+      case 'CBT':
+        return 'Cognitive Restructuring';
+      case 'DBT':
+        return 'Emotion Regulation';
+      case 'ACT':
+        return 'Values Clarification';
+      case 'Mindfulness':
+        return 'Present Moment Awareness';
+      default:
+        return 'Supportive Listening';
+    }
   }
 
   private selectTherapeuticProtocol(context: QueryContext): TherapeuticProtocol {
@@ -313,7 +361,8 @@ export class HybridTherapeuticEngine {
   private async synthesizeResponse(
     context: QueryContext,
     retrievalResults: RetrievalResult[],
-    historicalContext: any
+    historicalContext: any,
+    selectedProtocol: TherapeuticProtocol
   ): Promise<TherapeuticResponse> {
     // Select best content based on relevance and source diversity
     const selectedContent = this.selectBestContent(retrievalResults);
@@ -322,7 +371,8 @@ export class HybridTherapeuticEngine {
     const approach = this.determineTherapeuticApproach(
       context,
       selectedContent,
-      historicalContext
+      historicalContext,
+      selectedProtocol
     );
 
     // Generate the actual response
@@ -330,7 +380,8 @@ export class HybridTherapeuticEngine {
       context,
       selectedContent,
       approach,
-      historicalContext
+      historicalContext,
+      selectedProtocol
     );
 
     return response;
@@ -359,20 +410,26 @@ export class HybridTherapeuticEngine {
       }
     }
 
+    // If no content selected, use the first result if available
+    if (selected.length === 0 && results.length > 0) {
+      selected.push(results[0]);
+    }
+
     return selected;
   }
 
   private determineTherapeuticApproach(
     context: QueryContext,
     selectedContent: RetrievalResult[],
-    historicalContext: any
+    historicalContext: any,
+    selectedProtocol: TherapeuticProtocol
   ): any {
     // Analyze patterns in selected content
     const protocols = selectedContent
       .filter(r => r.protocol)
       .map(r => r.protocol!);
     
-    const primaryProtocol = protocols[0] || 'Integrative';
+    const primaryProtocol = protocols[0] || selectedProtocol;
     
     // Consider historical effectiveness
     let adjustedApproach = primaryProtocol;
@@ -403,7 +460,8 @@ export class HybridTherapeuticEngine {
     context: QueryContext,
     selectedContent: RetrievalResult[],
     approach: any,
-    historicalContext: any
+    historicalContext: any,
+    selectedProtocol: TherapeuticProtocol
   ): Promise<TherapeuticResponse> {
     // Construct prompt with all context
     const prompt = this.constructTherapeuticPrompt(
@@ -420,27 +478,30 @@ export class HybridTherapeuticEngine {
     // Extract therapeutic elements from generated response
     const therapeuticElements = this.extractTherapeuticElements(
       generatedText,
-      selectedContent[0]?.protocol || 'General',
+      selectedProtocol,
       context
     );
 
-    // Get technique from metadata
-    const technique = this.selectTechniques(selectedContent)[0];
-    const techniqueName = technique || 'Supportive Listening';
+    // Get technique from selected content or use default
+    let technique = 'Supportive Listening';
+    if (selectedContent.length > 0 && selectedContent[0].metadata?.technique) {
+      technique = selectedContent[0].metadata.technique;
+    } else {
+      technique = this.getDefaultTechnique(selectedProtocol);
+    }
     
     // Special handling for CBT protocol with Cognitive Restructuring
-    let finalTechnique = techniqueName;
-    if (selectedContent[0]?.protocol === 'CBT' && 
-        context.userInput.toLowerCase().includes('always') ||
-        context.userInput.toLowerCase().includes('failure') ||
-        context.userInput.toLowerCase().includes('stupid')) {
-      finalTechnique = 'Cognitive Restructuring';
+    if (selectedProtocol === 'CBT' && 
+        (context.userInput.toLowerCase().includes('always') ||
+         context.userInput.toLowerCase().includes('failure') ||
+         context.userInput.toLowerCase().includes('stupid'))) {
+      technique = 'Cognitive Restructuring';
     }
 
     return {
       timestamp: new Date(),
-      protocol: selectedContent[0]?.protocol || 'Integrative',
-      technique: finalTechnique,
+      protocol: selectedProtocol,
+      technique: technique,
       response: generatedText,
       emotionalValidation: therapeuticElements.emotionalValidation,
       therapeuticSuggestions: therapeuticElements.therapeuticSuggestions,

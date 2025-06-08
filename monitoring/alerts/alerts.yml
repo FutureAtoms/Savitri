@@ -1,0 +1,192 @@
+groups:
+  - name: savitri_api_alerts
+    interval: 30s
+    rules:
+      # API Response Time
+      - alert: HighAPIResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 2.5
+        for: 5m
+        labels:
+          severity: warning
+          service: api
+        annotations:
+          summary: "High API response time detected"
+          description: "95th percentile response time is {{ $value }}s (threshold: 2.5s)"
+
+      # API Error Rate
+      - alert: HighAPIErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          service: api
+        annotations:
+          summary: "High API error rate"
+          description: "API error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+      # API Availability
+      - alert: APIDown
+        expr: up{job="savitri-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: api
+        annotations:
+          summary: "API is down"
+          description: "Savitri backend API has been down for more than 1 minute"
+
+  - name: savitri_clinical_alerts
+    interval: 60s
+    rules:
+      # Crisis Detection Rate
+      - alert: HighCrisisDetectionRate
+        expr: rate(clinical_crisis_detections_total[15m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: clinical
+        annotations:
+          summary: "High crisis detection rate"
+          description: "Crisis detection rate is {{ $value | humanizePercentage }} in the last 15 minutes"
+
+      # Therapeutic Engine Performance
+      - alert: TherapeuticEngineSlowResponse
+        expr: histogram_quantile(0.95, rate(therapeutic_response_duration_seconds_bucket[5m])) > 3
+        for: 5m
+        labels:
+          severity: warning
+          service: clinical
+        annotations:
+          summary: "Therapeutic engine responding slowly"
+          description: "95th percentile response time is {{ $value }}s (threshold: 3s)"
+
+      # Emotion Analysis Failures
+      - alert: EmotionAnalysisFailures
+        expr: rate(emotion_analysis_failures_total[5m]) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+          service: clinical
+        annotations:
+          summary: "Emotion analysis failures detected"
+          description: "Emotion analysis failure rate is {{ $value | humanizePercentage }}"
+
+  - name: savitri_security_alerts
+    interval: 30s
+    rules:
+      # Authentication Failures
+      - alert: HighAuthenticationFailureRate
+        expr: rate(auth_failures_total[5m]) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: "High authentication failure rate"
+          description: "Authentication failure rate is {{ $value | humanizePercentage }} - possible brute force attack"
+
+      # HIPAA Compliance Violations
+      - alert: HIPAAComplianceViolation
+        expr: hipaa_compliance_violations_total > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: security
+          compliance: hipaa
+        annotations:
+          summary: "HIPAA compliance violation detected"
+          description: "{{ $value }} HIPAA compliance violations detected - immediate action required"
+
+      # Encryption Failures
+      - alert: EncryptionFailure
+        expr: rate(encryption_failures_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          service: security
+        annotations:
+          summary: "Encryption failures detected"
+          description: "Encryption failures detected - patient data may be at risk"
+
+  - name: savitri_infrastructure_alerts
+    interval: 30s
+    rules:
+      # MongoDB Connection Issues
+      - alert: MongoDBConnectionFailure
+        expr: mongodb_up == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "MongoDB connection failure"
+          description: "Cannot connect to MongoDB - database operations will fail"
+
+      # High Memory Usage
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: infrastructure
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value | humanizePercentage }} (threshold: 90%)"
+
+      # High CPU Usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: infrastructure
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value }}% (threshold: 80%)"
+
+      # Disk Space Low
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          service: infrastructure
+        annotations:
+          summary: "Low disk space"
+          description: "Only {{ $value | humanizePercentage }} disk space remaining"
+
+  - name: savitri_business_alerts
+    interval: 60s
+    rules:
+      # Low User Engagement
+      - alert: LowUserEngagement
+        expr: rate(sessions_started_total[1h]) < 10
+        for: 30m
+        labels:
+          severity: info
+          service: business
+        annotations:
+          summary: "Low user engagement"
+          description: "Less than 10 sessions started in the last hour"
+
+      # High Session Abandonment
+      - alert: HighSessionAbandonment
+        expr: rate(sessions_abandoned_total[1h]) / rate(sessions_started_total[1h]) > 0.3
+        for: 15m
+        labels:
+          severity: warning
+          service: business
+        annotations:
+          summary: "High session abandonment rate"
+          description: "{{ $value | humanizePercentage }} of sessions are being abandoned"
+
+      # Concurrent User Limit
+      - alert: ApproachingConcurrentUserLimit
+        expr: concurrent_users > 900
+        for: 5m
+        labels:
+          severity: warning
+          service: business
+        annotations:
+          summary: "Approaching concurrent user limit"
+          description: "{{ $value }} concurrent users (limit: 1000)"

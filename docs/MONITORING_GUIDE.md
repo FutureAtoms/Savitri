@@ -1,322 +1,442 @@
-# Production Monitoring Setup Guide
+# Savitri Production Monitoring & Clinical Analytics Guide
 
 ## Overview
 
-This guide covers the complete setup of production monitoring for the Ashray Psychology App using Prometheus, Grafana, and AlertManager.
+This guide covers the setup and configuration of production monitoring and clinical analytics for the Savitri Psychology Therapy App. The monitoring stack includes Prometheus for metrics collection, Grafana for visualization, Loki for log aggregation, and custom clinical analytics dashboards.
 
 ## Architecture
 
 ```
-┌─────────────┐     ┌──────────────┐     ┌──────────────┐
-│   Ashray    │────▶│  Prometheus  │────▶│   Grafana    │
-│     API     │     │              │     │              │
-└─────────────┘     └──────────────┘     └──────────────┘
-                            │                     ▲
-                            ▼                     │
-                    ┌──────────────┐              │
-                    │ AlertManager │──────────────┘
-                    └──────────────┘
-                            │
-                            ▼
-                    ┌──────────────┐
-                    │  PagerDuty   │
-                    └──────────────┘
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Application   │────▶│   Prometheus    │────▶│    Grafana      │
+│   (Metrics)     │     │  (Time Series)  │     │ (Visualization) │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+         │                                                │
+         │              ┌─────────────────┐              │
+         └─────────────▶│      Loki       │◀─────────────┘
+           (Logs)       │ (Log Storage)   │
+                        └─────────────────┘
 ```
 
-## Quick Start
+## Components
 
-### 1. Prerequisites
+### 1. Prometheus
+- **Purpose**: Collects and stores time-series metrics
+- **Port**: 9090
+- **Configuration**: `/monitoring/prometheus.yml`
 
-- Docker and Docker Compose installed
-- Domain configured for monitoring.ashray.app
-- PagerDuty account (for critical alerts)
-- SMTP server access (for email alerts)
-- Slack webhook URL (optional)
+### 2. Grafana
+- **Purpose**: Visualizes metrics and logs
+- **Port**: 3002
+- **Default Credentials**: admin/admin (change immediately)
+- **Dashboards**: Pre-configured for API, Clinical, and Business metrics
 
-### 2. Environment Configuration
+### 3. Loki
+- **Purpose**: Log aggregation and querying
+- **Port**: 3100
+- **Integration**: Automatically connected to Grafana
 
-Create a `.env.monitoring` file:
+### 4. Alertmanager
+- **Purpose**: Handles alerts from Prometheus
+- **Port**: 9093
+- **Notifications**: Slack, PagerDuty, Email
 
-```bash
-# Grafana Admin
-GRAFANA_ADMIN_PASSWORD=your-secure-password
-GRAFANA_SECRET_KEY=your-secret-key
+## Metrics
 
-# SMTP Configuration
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USERNAME=alerts@ashray.app
-SMTP_PASSWORD=your-smtp-password
+### API Metrics
+- `http_request_duration_seconds`: Request latency histogram
+- `http_requests_total`: Total requests counter
+- `http_request_size_bytes`: Request size histogram
+- `http_response_size_bytes`: Response size histogram
+- `api_concurrent_requests`: Current concurrent requests
 
-# Alert Integrations
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK/URL
-PAGERDUTY_SERVICE_KEY=your-pagerduty-service-key
-PAGERDUTY_CRISIS_KEY=your-crisis-service-key
-PAGERDUTY_SECURITY_KEY=your-security-service-key
-CRISIS_WEBHOOK_URL=https://your-crisis-webhook.com
+### Clinical Metrics
+- `clinical_sessions_total`: Total therapy sessions
+- `clinical_crisis_detections_total`: Crisis events detected
+- `clinical_emotion_analysis_duration`: Emotion analysis latency
+- `clinical_therapeutic_response_duration`: Response generation time
+- `clinical_protocol_usage`: Usage by therapeutic protocol (CBT, DBT, etc.)
 
-# OAuth Configuration (optional)
-OAUTH_ENABLED=false
-OAUTH_CLIENT_ID=your-oauth-client-id
-OAUTH_CLIENT_SECRET=your-oauth-secret
-OAUTH_AUTH_URL=https://auth.ashray.app/authorize
-OAUTH_TOKEN_URL=https://auth.ashray.app/token
-OAUTH_API_URL=https://auth.ashray.app/userinfo
+### Security Metrics
+- `auth_attempts_total`: Authentication attempts
+- `auth_failures_total`: Failed authentication attempts
+- `hipaa_compliance_violations_total`: HIPAA violations detected
+- `encryption_operations_total`: Encryption operations performed
+- `audit_events_total`: Audit log entries created
 
-# AWS Configuration (if using CloudWatch)
-AWS_ACCESS_KEY_ID=your-aws-access-key
-AWS_SECRET_ACCESS_KEY=your-aws-secret-key
-```
+### Business Metrics
+- `sessions_started_total`: New sessions started
+- `sessions_completed_total`: Sessions completed successfully
+- `sessions_abandoned_total`: Sessions abandoned
+- `concurrent_users`: Current active users
+- `user_satisfaction_score`: Average satisfaction rating
 
-### 3. Start Monitoring Stack
-
-```bash
-# Create networks
-docker network create monitoring
-docker network create ashray-network
-
-# Start monitoring stack
-docker-compose -f docker-compose.monitoring.yml --env-file .env.monitoring up -d
-
-# Check status
-docker-compose -f docker-compose.monitoring.yml ps
-
-# View logs
-docker-compose -f docker-compose.monitoring.yml logs -f
-```
-
-### 4. Access Dashboards
-
-- **Grafana**: http://localhost:3003 (admin/[GRAFANA_ADMIN_PASSWORD])
-- **Prometheus**: http://localhost:9090
-- **AlertManager**: http://localhost:9093
-
-## Dashboards Overview
+## Dashboards
 
 ### 1. API Performance Dashboard
-- Request rate and latency metrics
-- HTTP status code distribution
-- Top routes by traffic
-- Error rate analysis
+```json
+{
+  "dashboard": {
+    "title": "Savitri API Performance",
+    "panels": [
+      {
+        "title": "Request Rate",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total[5m])"
+          }
+        ]
+      },
+      {
+        "title": "Response Time (p95)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))"
+          }
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "targets": [
+          {
+            "expr": "rate(http_requests_total{status=~\"5..\"}[5m])"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
-### 2. Clinical Metrics Dashboard
-- Active therapy sessions
-- Crisis detection events
-- Patient engagement scores
-- Session duration analysis
+### 2. Clinical Analytics Dashboard
+```json
+{
+  "dashboard": {
+    "title": "Clinical Analytics",
+    "panels": [
+      {
+        "title": "Crisis Detection Rate",
+        "targets": [
+          {
+            "expr": "rate(clinical_crisis_detections_total[1h])"
+          }
+        ]
+      },
+      {
+        "title": "Emotion Distribution",
+        "targets": [
+          {
+            "expr": "sum by (emotion) (rate(clinical_emotion_detections_total[1h]))"
+          }
+        ]
+      },
+      {
+        "title": "Protocol Effectiveness",
+        "targets": [
+          {
+            "expr": "avg by (protocol) (clinical_session_satisfaction_score)"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
-### 3. Business KPIs Dashboard
-- Monthly Recurring Revenue (MRR)
-- Active subscriptions
-- User acquisition funnel
-- Churn rate analysis
+### 3. HIPAA Compliance Dashboard
+```json
+{
+  "dashboard": {
+    "title": "HIPAA Compliance Monitoring",
+    "panels": [
+      {
+        "title": "PHI Access Logs",
+        "targets": [
+          {
+            "expr": "rate(audit_phi_access_total[1h])"
+          }
+        ]
+      },
+      {
+        "title": "Encryption Status",
+        "targets": [
+          {
+            "expr": "encryption_operations_total{status=\"success\"} / encryption_operations_total"
+          }
+        ]
+      },
+      {
+        "title": "Compliance Violations",
+        "targets": [
+          {
+            "expr": "hipaa_compliance_violations_total"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
 
-### 4. Infrastructure Monitoring
-- CPU, Memory, Disk usage
-- Network I/O
-- Database connections
-- Container health
+## Setup Instructions
 
-### 5. SLO/SLA Monitoring
-- Service Level Objective compliance
-- Error budget tracking
-- Availability metrics
-- Performance targets
+### 1. Deploy Monitoring Stack
 
-## Alert Configuration
+```bash
+# Start monitoring services
+docker-compose -f docker-compose.yml up -d prometheus grafana loki
 
-### Critical Alerts (PagerDuty)
-- API Down
-- Crisis Detected
-- MongoDB/Redis Down
-- Encryption Failure
-- Audit Log Failure
+# Verify services are running
+docker-compose ps
 
-### Warning Alerts (Email/Slack)
-- High API Latency (>2s P95)
-- High Error Rate (>10%)
-- Memory Usage >85%
-- Disk Space <15%
-- SLO Violations
+# Check Prometheus targets
+curl http://localhost:9090/api/v1/targets
+```
 
-### Info Alerts (Slack Only)
-- Low Patient Engagement
-- High Session Dropout Rate
-- Business metric anomalies
+### 2. Configure Grafana
 
-## SLO Targets
+```bash
+# Access Grafana
+open http://localhost:3002
 
-| SLO | Target | Window | Description |
-|-----|--------|---------|-------------|
-| API Availability | 99.9% | 30d | API uptime |
-| API Latency P95 | <2.5s | 30d | Response time |
-| Voice Session Success | 99.5% | 7d | Successful sessions |
-| Crisis Detection | 95% | 30d | Detection accuracy |
-| Gemini API | 99% | 24h | API success rate |
-| Auth Service | 99.95% | 30d | Authentication uptime |
+# Login with admin/admin
+# Change password immediately
 
-## Metric Collection
+# Import dashboards
+# Go to Dashboards > Import
+# Upload JSON files from /monitoring/grafana/dashboards/
+```
 
-### Application Metrics
+### 3. Configure Alerting
 
-The application exposes metrics at `/monitoring/metrics`:
+```bash
+# Edit Alertmanager configuration
+vim monitoring/alertmanager.yml
+
+# Add notification channels (Slack example):
+route:
+  receiver: 'slack-notifications'
+  
+receivers:
+  - name: 'slack-notifications'
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#alerts'
+        title: 'Savitri Alert'
+```
+
+### 4. Configure Application Metrics
 
 ```javascript
-// Example metric recording
-metricsService.increment('api_requests_total', {
-  method: req.method,
-  route: req.route.path,
-  status: res.statusCode
+// backend/src/metrics/index.ts
+import { Registry, Counter, Histogram, Gauge } from 'prom-client';
+
+export const registry = new Registry();
+
+// API Metrics
+export const httpRequestDuration = new Histogram({
+  name: 'http_request_duration_seconds',
+  help: 'Duration of HTTP requests in seconds',
+  labelNames: ['method', 'route', 'status'],
+  buckets: [0.1, 0.5, 1, 2.5, 5, 10],
+  registers: [registry]
 });
 
-metricsService.observe('api_request_duration_seconds', duration, {
-  method: req.method,
-  route: req.route.path
+// Clinical Metrics
+export const crisisDetections = new Counter({
+  name: 'clinical_crisis_detections_total',
+  help: 'Total number of crisis detections',
+  labelNames: ['severity'],
+  registers: [registry]
+});
+
+export const concurrentUsers = new Gauge({
+  name: 'concurrent_users',
+  help: 'Number of concurrent users',
+  registers: [registry]
 });
 ```
 
-### Custom Business Metrics
+## Production Checklist
 
-```javascript
-// Record business events
-metricsService.increment('therapy_sessions_completed', {
-  therapy_type: 'CBT'
-});
+### Pre-deployment
+- [ ] All metrics endpoints secured with authentication
+- [ ] Prometheus scrape configs use HTTPS
+- [ ] Grafana admin password changed
+- [ ] Alert notification channels configured
+- [ ] Backup retention policies set
 
-metricsService.gauge('active_users', activeUserCount, {
-  plan: 'premium'
-});
-```
+### Post-deployment
+- [ ] Verify all metrics are being collected
+- [ ] Test alert notifications
+- [ ] Configure dashboard refresh rates
+- [ ] Set up automated reports
+- [ ] Train team on dashboard usage
 
-## Prometheus Queries
+## Monitoring Best Practices
 
-### Common Queries
+### 1. Metric Naming
+- Use consistent prefixes (e.g., `clinical_`, `api_`, `security_`)
+- Follow Prometheus naming conventions
+- Include units in metric names (e.g., `_seconds`, `_bytes`)
 
-```promql
-# API Success Rate
-(1 - (sum(rate(api_requests_total{status=~"5.."}[5m])) / sum(rate(api_requests_total[5m])))) * 100
+### 2. Label Usage
+- Keep cardinality low (< 10 unique values per label)
+- Use meaningful label names
+- Avoid high-cardinality labels (e.g., user_id)
 
-# P95 Latency
-histogram_quantile(0.95, sum(rate(api_request_duration_seconds_bucket[5m])) by (le))
+### 3. Alert Design
+- Alert on symptoms, not causes
+- Include clear descriptions and runbooks
+- Set appropriate thresholds based on SLOs
+- Avoid alert fatigue with proper severity levels
 
-# Active Sessions
-sum(ashray_active_sessions)
-
-# Crisis Detection Rate
-sum(rate(crisis_detections_total[5m])) by (severity)
-
-# Error Budget Remaining
-100 - ((1 - (avg_over_time((up{job="ashray-api"})[30d:5m]))) * 100)
-```
+### 4. Dashboard Design
+- Group related metrics together
+- Use consistent time ranges
+- Include both current values and trends
+- Add annotations for deployments and incidents
 
 ## Troubleshooting
 
-### Container Issues
-
+### Prometheus Issues
 ```bash
-# Check container logs
-docker logs ashray-prometheus
-docker logs ashray-grafana
-docker logs ashray-alertmanager
+# Check Prometheus configuration
+promtool check config /etc/prometheus/prometheus.yml
 
-# Restart containers
-docker-compose -f docker-compose.monitoring.yml restart prometheus
+# Verify targets are up
+curl http://localhost:9090/api/v1/targets | jq '.data.activeTargets'
 
-# Check network connectivity
-docker exec ashray-prometheus ping ashray-api
+# Check for metric ingestion
+curl http://localhost:9090/api/v1/query?query=up
 ```
 
-### Metric Collection Issues
+### Grafana Issues
+```bash
+# Check Grafana logs
+docker logs savitri-grafana
 
-1. Verify application is exposing metrics:
-   ```bash
-   curl http://localhost:3000/monitoring/metrics
-   ```
+# Verify data source connection
+curl -u admin:password http://localhost:3002/api/datasources
 
-2. Check Prometheus targets:
-   - Navigate to http://localhost:9090/targets
-   - Ensure all targets are "UP"
+# Test query
+curl -u admin:password -X POST http://localhost:3002/api/ds/query \
+  -H "Content-Type: application/json" \
+  -d '{"queries":[{"expr":"up","refId":"A"}]}'
+```
 
-3. Verify scrape configuration in prometheus.yml
+### Loki Issues
+```bash
+# Check Loki status
+curl http://localhost:3100/ready
 
-### Alert Issues
+# Query logs
+curl -G -s "http://localhost:3100/loki/api/v1/query_range" \
+  --data-urlencode 'query={job="savitri-backend"}' | jq
+```
 
-1. Check AlertManager status:
-   ```bash
-   curl http://localhost:9093/api/v1/status
-   ```
+## Clinical Analytics Queries
 
-2. Test alert routing:
-   ```bash
-   amtool alert add alertname=test severity=warning -a alertmanager:9093
-   ```
+### Session Analysis
+```promql
+# Average session duration by protocol
+avg by (protocol) (
+  clinical_session_duration_seconds
+)
 
-3. Check webhook endpoints are accessible
+# Session completion rate
+sum(rate(sessions_completed_total[1d])) / 
+sum(rate(sessions_started_total[1d]))
+
+# Most common emotional states
+topk(5, sum by (emotion) (
+  rate(clinical_emotion_detections_total[1h])
+))
+```
+
+### Crisis Analysis
+```promql
+# Crisis detection trend
+rate(clinical_crisis_detections_total[1h])
+
+# Crisis response time
+histogram_quantile(0.95, 
+  rate(clinical_crisis_response_duration_bucket[5m])
+)
+
+# Crisis by time of day
+sum by (hour) (
+  increase(clinical_crisis_detections_total[1h])
+)
+```
+
+### Therapeutic Effectiveness
+```promql
+# Protocol success rate
+avg by (protocol) (
+  clinical_session_outcome_score
+) / 5 * 100
+
+# Improvement over time
+rate(clinical_patient_progress_score[7d])
+
+# Technique usage patterns
+sum by (technique) (
+  rate(clinical_technique_usage_total[1d])
+)
+```
+
+## Compliance Reporting
+
+### Monthly HIPAA Report
+```promql
+# PHI Access Summary
+sum(increase(audit_phi_access_total[30d]))
+
+# Encryption Compliance
+avg(encryption_success_rate[30d]) * 100
+
+# Security Incidents
+sum(increase(security_incidents_total[30d]))
+```
+
+### Clinical Outcomes Report
+```promql
+# Patient Satisfaction
+avg(clinical_session_satisfaction_score[30d])
+
+# Crisis Prevention Rate
+1 - (sum(rate(clinical_crisis_detections_total[30d])) / 
+     sum(rate(sessions_started_total[30d])))
+
+# Treatment Adherence
+sum(rate(sessions_completed_total[30d])) / 
+sum(rate(sessions_scheduled_total[30d]))
+```
 
 ## Maintenance
 
-### Backup Procedures
+### Daily Tasks
+- Review overnight alerts
+- Check dashboard health
+- Verify backup completion
+- Monitor disk usage
 
-```bash
-# Backup Prometheus data
-docker run --rm -v ashray-prometheus-data:/data -v $(pwd):/backup alpine tar czf /backup/prometheus-backup-$(date +%Y%m%d).tar.gz -C /data .
+### Weekly Tasks
+- Review metric cardinality
+- Update alert thresholds
+- Generate compliance reports
+- Clean up old logs
 
-# Backup Grafana dashboards
-curl -H "Authorization: Bearer $GRAFANA_API_KEY" http://localhost:3003/api/dashboards/db/api-performance > api-performance-dashboard.json
-```
+### Monthly Tasks
+- Update Grafana dashboards
+- Review and optimize queries
+- Audit access logs
+- Update documentation
 
-### Update Procedures
+## Contact
 
-```bash
-# Update container images
-docker-compose -f docker-compose.monitoring.yml pull
-
-# Restart with new images
-docker-compose -f docker-compose.monitoring.yml up -d
-```
-
-### Data Retention
-
-- Prometheus: 30 days (configurable via --storage.tsdb.retention.time)
-- Loki: 7 days (configurable in loki config)
-- Grafana: Unlimited (SQLite database)
-
-## Security Considerations
-
-1. **Network Isolation**: Monitoring stack should be on isolated network
-2. **Authentication**: Enable OAuth2 for Grafana in production
-3. **TLS**: Use HTTPS for all external endpoints
-4. **Secrets**: Store sensitive data in environment variables or secrets manager
-5. **Access Control**: Implement RBAC in Grafana
-
-## Integration with CI/CD
-
-### GitHub Actions Example
-
-```yaml
-- name: Record Deployment Metric
-  run: |
-    curl -X POST http://monitoring.ashray.app/monitoring/metrics/record \
-      -H "Content-Type: application/json" \
-      -d '{
-        "metric": "deployment",
-        "tags": {
-          "version": "${{ github.sha }}",
-          "environment": "production"
-        }
-      }'
-```
-
-## Cost Optimization
-
-1. **Metric Cardinality**: Limit label combinations to reduce storage
-2. **Scrape Intervals**: Adjust based on metric importance
-3. **Retention Policies**: Shorter retention for high-frequency metrics
-4. **Downsampling**: Use recording rules for long-term storage
-
-## Resources
-
-- [Prometheus Documentation](https://prometheus.io/docs/)
-- [Grafana Documentation](https://grafana.com/docs/)
-- [AlertManager Documentation](https://prometheus.io/docs/alerting/latest/alertmanager/)
-- [PromQL Examples](https://prometheus.io/docs/prometheus/latest/querying/examples/)
+For monitoring issues or questions:
+- **On-call Engineer**: Check PagerDuty schedule
+- **Monitoring Team**: monitoring@savitri.health
+- **Security Team**: security@savitri.health (for compliance issues)

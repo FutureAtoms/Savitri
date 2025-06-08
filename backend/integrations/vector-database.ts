@@ -291,4 +291,16 @@ export class VectorDatabase {
       initialized: this.initialized
     };
   }
+
+  async getEmbeddings(text: string): Promise<number[]> {
+    return this.generateEmbedding(text);
+  }
+
+  async query(options: { embedding: number[], topK: number, filters: any }): Promise<VectorSearchResult[]> {
+    return this.search(options.embedding, {
+      topK: options.topK,
+      threshold: 0, // No threshold for this query type
+      filters: options.filters,
+    });
+  }
 }

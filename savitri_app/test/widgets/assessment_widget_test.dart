@@ -117,14 +117,19 @@ void main() {
         ),
       );
 
-      final previousButton = find.text('Previous');
-      expect(previousButton, findsOneWidget);
+      // Find the icon and then its parent TextButton
+      final backIcon = find.byIcon(Icons.arrow_back);
+      expect(backIcon, findsOneWidget);
       
-      // Button should be disabled (onPressed is null)
-      final textButton = tester.widget<TextButton>(find.ancestor(
-        of: previousButton,
+      // Find parent TextButton
+      final textButtonFinder = find.ancestor(
+        of: backIcon,
         matching: find.byType(TextButton),
-      ));
+      );
+      
+      // Verify button is found and disabled
+      expect(textButtonFinder, findsOneWidget);
+      final textButton = tester.widget<TextButton>(textButtonFinder);
       expect(textButton.onPressed, isNull);
     });
 
@@ -156,6 +161,9 @@ void main() {
 
       // Should show 2 answered
       expect(find.text('2/5 answered'), findsOneWidget);
+      
+      // Clean up the timer
+      await tester.pump(const Duration(milliseconds: 800));
     });
 
     testWidgets('calls onAnswerChanged callback when answer is selected', (WidgetTester tester) async {
@@ -182,6 +190,9 @@ void main() {
 
       expect(lastQuestionId, equals('phq9_1'));
       expect(lastScore, equals(0));
+      
+      // Clean up the timer
+      await tester.pump(const Duration(milliseconds: 800));
     });
 
     testWidgets('calls onCompleted callback when all questions answered', (WidgetTester tester) async {
@@ -204,9 +215,7 @@ void main() {
       for (int i = 0; i < 5; i++) {
         await tester.tap(find.text('Not at all'));
         await tester.pump();
-        if (i < 4) {
-          await tester.pump(const Duration(milliseconds: 800));
-        }
+        await tester.pump(const Duration(milliseconds: 800));
       }
 
       expect(completedAnswers, isNotNull);
@@ -232,9 +241,7 @@ void main() {
         final options = ['Not at all', 'Several days', 'More than half the days', 'Nearly every day'];
         await tester.tap(find.text(options[scores[i]]));
         await tester.pump();
-        if (i < 4) {
-          await tester.pump(const Duration(milliseconds: 800));
-        }
+        await tester.pump(const Duration(milliseconds: 800));
       }
 
       // Should show completion summary
@@ -259,9 +266,7 @@ void main() {
       for (int i = 0; i < 5; i++) {
         await tester.tap(find.text('Not at all'));
         await tester.pump();
-        if (i < 4) {
-          await tester.pump(const Duration(milliseconds: 800));
-        }
+        await tester.pump(const Duration(milliseconds: 800));
       }
 
       expect(find.text('Interpretation: Minimal depression'), findsOneWidget);
@@ -282,9 +287,7 @@ void main() {
       for (int i = 0; i < 5; i++) {
         await tester.tap(find.text('Several days'));
         await tester.pump();
-        if (i < 4) {
-          await tester.pump(const Duration(milliseconds: 800));
-        }
+        await tester.pump(const Duration(milliseconds: 800));
       }
 
       expect(find.text('Total Score: 5'), findsOneWidget);
@@ -324,6 +327,9 @@ void main() {
       }
       
       expect(foundHighlightedContainer, isTrue);
+      
+      // Clean up the timer
+      await tester.pump(const Duration(milliseconds: 800));
     });
 
     testWidgets('preserves answers when navigating back and forth', (WidgetTester tester) async {
@@ -364,6 +370,9 @@ void main() {
       }
       
       expect(foundCorrectHighlight, isTrue);
+      
+      // Clean up the timer
+      await tester.pump(const Duration(milliseconds: 800));
     });
 
     testWidgets('updates progress indicator correctly', (WidgetTester tester) async {

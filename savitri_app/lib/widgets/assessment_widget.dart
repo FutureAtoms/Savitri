@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 enum AssessmentType { phq9, gad7 }
@@ -35,6 +36,7 @@ class AssessmentWidget extends StatefulWidget {
 class _AssessmentWidgetState extends State<AssessmentWidget> {
   int currentQuestionIndex = 0;
   Map<String, int> answers = {};
+  Timer? _autoAdvanceTimer;
   
   static const List<AssessmentQuestion> phq9Questions = [
     AssessmentQuestion(
@@ -114,7 +116,16 @@ class _AssessmentWidgetState extends State<AssessmentWidget> {
 
   AssessmentQuestion get currentQuestion => questions[currentQuestionIndex];
 
+  @override
+  void dispose() {
+    _autoAdvanceTimer?.cancel();
+    super.dispose();
+  }
+
   void _selectAnswer(int score) {
+    // Cancel any existing timer
+    _autoAdvanceTimer?.cancel();
+    
     setState(() {
       answers[currentQuestion.id] = score;
     });
@@ -122,18 +133,21 @@ class _AssessmentWidgetState extends State<AssessmentWidget> {
     widget.onAnswerChanged?.call(currentQuestion.id, score);
     
     // Auto-advance after selection
-    Future.delayed(const Duration(milliseconds: 800), () {
-      if (currentQuestionIndex < questions.length - 1) {
-        setState(() {
-          currentQuestionIndex++;
-        });
-      } else {
-        _completeAssessment();
+    _autoAdvanceTimer = Timer(const Duration(milliseconds: 800), () {
+      if (mounted) {
+        if (currentQuestionIndex < questions.length - 1) {
+          setState(() {
+            currentQuestionIndex++;
+          });
+        } else {
+          _completeAssessment();
+        }
       }
     });
   }
 
   void _completeAssessment() {
+    _autoAdvanceTimer?.cancel();
     widget.onCompleted?.call(answers);
   }
 

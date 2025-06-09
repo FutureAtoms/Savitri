@@ -5,9 +5,9 @@ class AssessmentScreen extends StatefulWidget {
   final AssessmentType assessmentType;
 
   const AssessmentScreen({
-    Key? key,
+    super.key,
     required this.assessmentType,
-  }) : super(key: key);
+  });
 
   @override
   State<AssessmentScreen> createState() => _AssessmentScreenState();

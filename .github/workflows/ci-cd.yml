@@ -36,7 +36,7 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
+        cache-dependency-path: '**/package-lock.json'
     
     - name: Install backend dependencies
       working-directory: ./backend
@@ -83,6 +83,10 @@ jobs:
         flutter-version: ${{ env.FLUTTER_VERSION }}
         channel: 'stable'
         cache: true
+    
+    - name: Create asset directories
+      working-directory: ./savitri_app
+      run: mkdir -p assets/images assets/sounds assets/models
     
     - name: Install Flutter dependencies
       working-directory: ./savitri_app
@@ -189,7 +193,7 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
+        cache-dependency-path: '**/package-lock.json'
     
     - name: Install backend dependencies
       working-directory: ./backend

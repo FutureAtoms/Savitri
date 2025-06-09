@@ -5,7 +5,7 @@ import '../utils/theme.dart';
 
 /// Screen for biometric enrollment
 class BiometricEnrollmentScreen extends StatefulWidget {
-  const BiometricEnrollmentScreen({Key? key}) : super(key: key);
+  const BiometricEnrollmentScreen({super.key});
 
   @override
   State<BiometricEnrollmentScreen> createState() => _BiometricEnrollmentScreenState();
@@ -257,22 +257,22 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
     );
   }
 
-  Widget _buildBenefitItem(IconData icon, String title, String description) {
+  Widget _buildBenefitItem(IconData icon, String title, String subtitle) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
               color: AppTheme.primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+              shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
               color: AppTheme.primaryColor,
-              size: 24,
+              size: 20,
             ),
           ),
           const SizedBox(width: 16),
@@ -283,17 +283,17 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 16,
                     fontWeight: FontWeight.w600,
+                    fontSize: 16,
                     color: AppTheme.textColor,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
-                  description,
+                  subtitle,
                   style: TextStyle(
+                    color: AppTheme.textColor.withOpacity(0.7),
                     fontSize: 14,
-                    color: AppTheme.textColor.withOpacity(0.6),
                   ),
                 ),
               ],

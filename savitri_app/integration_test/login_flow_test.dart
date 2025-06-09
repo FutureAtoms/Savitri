@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:provider/provider.dart';
-import 'package:savitri_app/main.dart';
 import 'package:savitri_app/screens/login_screen.dart';
 import 'package:savitri_app/services/auth_service.dart';
 import 'package:savitri_app/services/biometric_auth_service.dart';
@@ -98,9 +97,9 @@ void main() {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text('MFA Screen'),
-                    TextField(
-                      key: const Key('mfa_code_field'),
-                      decoration: const InputDecoration(
+                    const TextField(
+                      key: Key('mfa_code_field'),
+                      decoration: InputDecoration(
                         labelText: 'Enter MFA Code',
                       ),
                     ),

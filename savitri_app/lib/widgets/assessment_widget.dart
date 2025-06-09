@@ -166,180 +166,182 @@ class _AssessmentWidgetState extends State<AssessmentWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Progress indicator
-        LinearProgressIndicator(
-          value: (currentQuestionIndex + 1) / questions.length,
-          backgroundColor: Colors.grey[300],
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-        ),
-        
-        const SizedBox(height: 20),
-        
-        // Assessment title and progress
-        Text(
-          assessmentTitle,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Progress indicator
+          LinearProgressIndicator(
+            value: (currentQuestionIndex + 1) / questions.length,
+            backgroundColor: Colors.grey[300],
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
           ),
-        ),
-        
-        const SizedBox(height: 8),
-        
-        Text(
-          'Question ${currentQuestionIndex + 1} of ${questions.length}',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[600],
+          
+          const SizedBox(height: 20),
+          
+          // Assessment title and progress
+          Text(
+            assessmentTitle,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        
-        const SizedBox(height: 32),
-        
-        // Question
-        Text(
-          'Over the last 2 weeks, how often have you been bothered by:',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[700],
+          
+          const SizedBox(height: 8),
+          
+          Text(
+            'Question ${currentQuestionIndex + 1} of ${questions.length}',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
           ),
-        ),
-        
-        const SizedBox(height: 16),
-        
-        Text(
-          currentQuestion.question,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
+          
+          const SizedBox(height: 32),
+          
+          // Question
+          Text(
+            'Over the last 2 weeks, how often have you been bothered by:',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[700],
+            ),
           ),
-        ),
-        
-        const SizedBox(height: 32),
-        
-        // Answer options
-        ...List.generate(currentQuestion.options.length, (index) {
-          final isSelected = answers[currentQuestion.id] == currentQuestion.scores[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: Material(
-              elevation: isSelected ? 4 : 1,
-              borderRadius: BorderRadius.circular(12),
-              child: InkWell(
-                onTap: () => _selectAnswer(currentQuestion.scores[index]),
+          
+          const SizedBox(height: 16),
+          
+          Text(
+            currentQuestion.question,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          
+          const SizedBox(height: 32),
+          
+          // Answer options
+          ...List.generate(currentQuestion.options.length, (index) {
+            final isSelected = answers[currentQuestion.id] == currentQuestion.scores[index];
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              child: Material(
+                elevation: isSelected ? 4 : 1,
                 borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isSelected ? Colors.blue : Colors.grey[300]!,
-                      width: isSelected ? 2 : 1,
+                child: InkWell(
+                  onTap: () => _selectAnswer(currentQuestion.scores[index]),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected ? Colors.blue : Colors.grey[300]!,
+                        width: isSelected ? 2 : 1,
+                      ),
+                      color: isSelected ? Colors.blue[50] : Colors.white,
                     ),
-                    color: isSelected ? Colors.blue[50] : Colors.white,
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 24,
-                        height: 24,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isSelected ? Colors.blue : Colors.grey[400]!,
-                            width: 2,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isSelected ? Colors.blue : Colors.grey[400]!,
+                              width: 2,
+                            ),
+                            color: isSelected ? Colors.blue : Colors.transparent,
                           ),
-                          color: isSelected ? Colors.blue : Colors.transparent,
+                          child: isSelected
+                              ? const Icon(
+                                  Icons.check,
+                                  size: 16,
+                                  color: Colors.white,
+                                )
+                              : null,
                         ),
-                        child: isSelected
-                            ? const Icon(
-                                Icons.check,
-                                size: 16,
-                                color: Colors.white,
-                              )
-                            : null,
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          currentQuestion.options[index],
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                            color: isSelected ? Colors.blue[700] : Colors.black87,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            currentQuestion.options[index],
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                              color: isSelected ? Colors.blue[700] : Colors.black87,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        }),
-        
-        const SizedBox(height: 32),
-        
-        // Navigation buttons
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            // Previous button
-            TextButton.icon(
-              onPressed: currentQuestionIndex > 0 ? _previousQuestion : null,
-              icon: const Icon(Icons.arrow_back),
-              label: const Text('Previous'),
-            ),
-            
-            // Progress text
-            Text(
-              '${answers.length}/${questions.length} answered',
-              style: TextStyle(
-                color: Colors.grey[600],
-                fontSize: 14,
+            );
+          }),
+          
+          const SizedBox(height: 32),
+          
+          // Navigation buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Previous button
+              TextButton.icon(
+                onPressed: currentQuestionIndex > 0 ? _previousQuestion : null,
+                icon: const Icon(Icons.arrow_back),
+                label: const Text('Previous'),
+              ),
+              
+              // Progress text
+              Text(
+                '${answers.length}/${questions.length} answered',
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+          
+          // Show results if completed
+          if (answers.length == questions.length) ...[
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.green[200]!),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Assessment Complete',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Total Score: $totalScore',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  Text(
+                    'Interpretation: $scoreInterpretation',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
               ),
             ),
           ],
-        ),
-        
-        // Show results if completed
-        if (answers.length == questions.length) ...[
-          const SizedBox(height: 32),
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.green[50],
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.green[200]!),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Assessment Complete',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Total Score: $totalScore',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                Text(
-                  'Interpretation: $scoreInterpretation',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
-          ),
         ],
-      ],
+      ),
     );
   }
 }

@@ -278,7 +278,7 @@ jobs:
       run: flutter build ios --release --no-codesign
     
     - name: Upload iOS build
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ios-build
         path: savitri_app/build/ios/iphoneos/
@@ -313,7 +313,7 @@ jobs:
         flutter build appbundle --release
     
     - name: Upload Android builds
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: android-builds
         path: |

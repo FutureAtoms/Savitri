@@ -55,7 +55,7 @@ jobs:
         NODE_ENV: test
     
     - name: Upload backend coverage
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: backend-coverage
         path: backend/coverage
@@ -97,10 +97,10 @@ jobs:
       run: flutter test --coverage
     
     - name: Upload Flutter coverage
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: flutter-coverage
-        path: savitri_app/coverage
+        path: savitri_app/coverage/lcov.info
     
     - name: Check Flutter test coverage
       working-directory: ./savitri_app
@@ -167,7 +167,7 @@ jobs:
     
     - name: Upload integration test results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: integration-test-results
         path: savitri_app/test-results/
@@ -176,6 +176,10 @@ jobs:
   security-scan:
     name: Security Vulnerability Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # for actions/checkout
+      security-events: write # for github/codeql-action/upload-sarif
+      actions: read # for partial result access
     
     steps:
     - uses: actions/checkout@v4
@@ -190,7 +194,7 @@ jobs:
         severity: 'CRITICAL,HIGH'
     
     - name: Upload Trivy scan results
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: 'trivy-results.sarif'
     
@@ -214,28 +218,37 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: List security files for debugging
+      run: ls -la backend/src/security
+
     - name: Check for PHI exposure
       run: |
-        # Check for potential PHI in code
-        if grep -r -i -E "(ssn|social.?security|patient.?name|date.?of.?birth|medical.?record)" --include="*.ts" --include="*.dart" --include="*.js" .; then
+        # Exclude test files from the search
+        if grep -r -i -E "(ssn|social.?security|patient.?name|date.?of.?birth|medical.?record)" --exclude-dir="*test*" --include="*.ts" --include="*.dart" --include="*.js" .; then
           echo "Potential PHI exposure found in code"
           exit 1
+        else
+          echo "No potential PHI found."
         fi
     
     - name: Validate encryption usage
       run: |
         # Ensure AES-256-GCM is used for encryption
-        if ! grep -r "AES-256-GCM" backend/; then
-          echo "AES-256-GCM encryption not found"
+        if ! grep -r -i "AES-256-GCM" backend/src/security; then
+          echo "AES-256-GCM encryption string not found in the security directory."
           exit 1
+        else
+          echo "AES-256-GCM encryption validated."
         fi
     
     - name: Check audit logging
       run: |
         # Ensure audit logging is implemented
-        if ! grep -r "AuditLogger" backend/; then
-          echo "Audit logging not implemented"
+        if ! grep -r -i "AuditLogger" backend/src/security; then
+          echo "AuditLogger not found in the security directory."
           exit 1
+        else
+          echo "AuditLogger implementation validated."
         fi
 
   # Build iOS

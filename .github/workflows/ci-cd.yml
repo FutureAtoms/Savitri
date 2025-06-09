@@ -9,7 +9,7 @@ on:
 
 env:
   NODE_VERSION: '18.x'
-  FLUTTER_VERSION: '3.16.0'
+  FLUTTER_VERSION: '3.22.2'
 
 jobs:
   # Backend Tests
@@ -23,7 +23,7 @@ jobs:
         ports:
           - 27017:27017
         options: >-
-          --health-cmd "mongo --eval 'db.adminCommand(\"ping\")'"
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -184,6 +184,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+    
+    - name: Install backend dependencies
+      working-directory: ./backend
+      run: npm ci
+    
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
@@ -218,13 +229,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: List security files for debugging
-      run: ls -la backend/src/security
+    - name: List files for debugging
+      run: ls -R
 
     - name: Check for PHI exposure
       run: |
-        # Exclude test files from the search
-        if grep -r -i -E "(ssn|social.?security|patient.?name|date.?of.?birth|medical.?record)" --exclude-dir="*test*" --include="*.ts" --include="*.dart" --include="*.js" .; then
+        # Exclude test files and known non-code directories from the search
+        if grep -r -i -E "(ssn|social.?security|patient.?name|date.?of.?birth|medical.?record)" \
+          --exclude-dir={*test*,*node_modules*,*build*,*coverage*} \
+          --include="*.ts" --include="*.dart" --include="*.js" . ; then
           echo "Potential PHI exposure found in code"
           exit 1
         else
@@ -233,9 +246,9 @@ jobs:
     
     - name: Validate encryption usage
       run: |
-        # Ensure AES-256-GCM is used for encryption
-        if ! grep -r -i "AES-256-GCM" backend/src/security; then
-          echo "AES-256-GCM encryption string not found in the security directory."
+        # Ensure AES-256-GCM is used for encryption in key security files
+        if ! grep -r -i "AES-256-GCM" backend/src/security live-audio/security; then
+          echo "AES-256-GCM encryption string not found in key security directories."
           exit 1
         else
           echo "AES-256-GCM encryption validated."
@@ -243,9 +256,9 @@ jobs:
     
     - name: Check audit logging
       run: |
-        # Ensure audit logging is implemented
-        if ! grep -r -i "AuditLogger" backend/src/security; then
-          echo "AuditLogger not found in the security directory."
+        # Ensure audit logging is implemented in key security files
+        if ! grep -r -i "AuditLogger" backend/src/security live-audio/security; then
+          echo "AuditLogger not found in key security directories."
           exit 1
         else
           echo "AuditLogger implementation validated."

@@ -117,20 +117,8 @@ void main() {
         ),
       );
 
-      // Find the icon and then its parent TextButton
-      final backIcon = find.byIcon(Icons.arrow_back);
-      expect(backIcon, findsOneWidget);
-      
-      // Find parent TextButton
-      final textButtonFinder = find.ancestor(
-        of: backIcon,
-        matching: find.byType(TextButton),
-      );
-      
-      // Verify button is found and disabled
-      expect(textButtonFinder, findsOneWidget);
-      final textButton = tester.widget<TextButton>(textButtonFinder);
-      expect(textButton.onPressed, isNull);
+      final button = tester.widget<TextButton>(find.byKey(const Key('assessment_previous_button')));
+      expect(button.onPressed, isNull);
     });
 
     testWidgets('tracks progress correctly', (WidgetTester tester) async {

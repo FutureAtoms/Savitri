@@ -103,6 +103,8 @@ class _TherapeuticVisual3DState extends State<TherapeuticVisual3D>
         return AppColors.neutral;
       case EmotionalState.distressed:
         return AppColors.anxious; // Assuming anxious color is the one for distressed
+      case EmotionalState.happy:
+        return AppColors.happy;
     }
   }
 

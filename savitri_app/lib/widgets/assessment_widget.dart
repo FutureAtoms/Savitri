@@ -152,6 +152,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget> {
   }
 
   void _previousQuestion() {
+    _autoAdvanceTimer?.cancel();
     if (currentQuestionIndex > 0) {
       setState(() {
         currentQuestionIndex--;
@@ -304,6 +305,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget> {
             children: [
               // Previous button
               TextButton.icon(
+                key: const Key('assessment_previous_button'),
                 onPressed: currentQuestionIndex > 0 ? _previousQuestion : null,
                 icon: const Icon(Icons.arrow_back),
                 label: const Text('Previous'),

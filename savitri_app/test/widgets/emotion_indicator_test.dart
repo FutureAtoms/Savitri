@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:savitri_app/widgets/emotion_indicator.dart';
+import 'package:savitri_app/utils/constants.dart';
 
 void main() {
   group('EmotionIndicator', () {
@@ -49,7 +50,7 @@ void main() {
 
       final container = tester.widget<Container>(find.byType(Container));
       final decoration = container.decoration as BoxDecoration;
-      expect(decoration.color, Colors.blue);
+      expect(decoration.color, AppColors.calm);
     });
 
     testWidgets('neutral state has correct color', (WidgetTester tester) async {
@@ -63,7 +64,7 @@ void main() {
 
       final container = tester.widget<Container>(find.byType(Container));
       final decoration = container.decoration as BoxDecoration;
-      expect(decoration.color, Colors.grey);
+      expect(decoration.color, AppColors.neutral);
     });
 
     testWidgets('distressed state has correct color', (WidgetTester tester) async {
@@ -77,7 +78,7 @@ void main() {
 
       final container = tester.widget<Container>(find.byType(Container));
       final decoration = container.decoration as BoxDecoration;
-      expect(decoration.color, Colors.orange);
+      expect(decoration.color, AppColors.anxious); // distressed uses anxious color
     });
 
     testWidgets('all emotional states have distinct colors', (WidgetTester tester) async {
@@ -97,14 +98,18 @@ void main() {
         stateColors[state] = decoration.color!;
       }
 
-      // Verify all colors are different
-      final colors = stateColors.values.toList();
-      expect(colors.toSet().length, colors.length, reason: 'All emotional states should have distinct colors');
+      // Verify all colors are different (except distressed which uses anxious color)
+      final uniqueColors = stateColors.values.toSet();
+      expect(uniqueColors.length, 6, reason: 'Should have 6 distinct colors (distressed uses anxious color)');
       
       // Verify specific color mappings
-      expect(stateColors[EmotionalState.calm], Colors.blue);
-      expect(stateColors[EmotionalState.neutral], Colors.grey);
-      expect(stateColors[EmotionalState.distressed], Colors.orange);
+      expect(stateColors[EmotionalState.calm], AppColors.calm);
+      expect(stateColors[EmotionalState.happy], AppColors.happy);
+      expect(stateColors[EmotionalState.anxious], AppColors.anxious);
+      expect(stateColors[EmotionalState.sad], AppColors.sad);
+      expect(stateColors[EmotionalState.angry], AppColors.angry);
+      expect(stateColors[EmotionalState.neutral], AppColors.neutral);
+      expect(stateColors[EmotionalState.distressed], AppColors.anxious);
     });
 
     testWidgets('handles state changes correctly', (WidgetTester tester) async {
@@ -136,31 +141,31 @@ void main() {
         ),
       );
 
-      // Start with calm (blue)
+      // Start with calm
       var container = tester.widget<Container>(find.byType(Container));
       var decoration = container.decoration as BoxDecoration;
-      expect(decoration.color, Colors.blue);
+      expect(decoration.color, AppColors.calm);
 
-      // Change to neutral (grey)
+      // Change to happy
       await tester.tap(find.text('Change State'));
       await tester.pump();
       container = tester.widget<Container>(find.byType(Container));
       decoration = container.decoration as BoxDecoration;
-      expect(decoration.color, Colors.grey);
+      expect(decoration.color, AppColors.happy);
 
-      // Change to distressed (orange)
+      // Change to anxious
       await tester.tap(find.text('Change State'));
       await tester.pump();
       container = tester.widget<Container>(find.byType(Container));
       decoration = container.decoration as BoxDecoration;
-      expect(decoration.color, Colors.orange);
+      expect(decoration.color, AppColors.anxious);
 
-      // Cycle back to calm (blue)
+      // Change to sad
       await tester.tap(find.text('Change State'));
       await tester.pump();
       container = tester.widget<Container>(find.byType(Container));
       decoration = container.decoration as BoxDecoration;
-      expect(decoration.color, Colors.blue);
+      expect(decoration.color, AppColors.sad);
     });
 
     testWidgets('renders correctly in different layouts', (WidgetTester tester) async {
@@ -321,7 +326,16 @@ void main() {
         ),
       );
 
-      final expectedColors = [Colors.blue, Colors.grey, Colors.orange];
+      // Define expected colors in order
+      final expectedColors = [
+        AppColors.calm,
+        AppColors.happy,
+        AppColors.anxious,
+        AppColors.sad,
+        AppColors.angry,
+        AppColors.neutral,
+        AppColors.anxious, // distressed uses anxious color
+      ];
       
       // Perform rapid state changes
       for (int i = 0; i < 10; i++) {
@@ -330,8 +344,8 @@ void main() {
         
         final container = tester.widget<Container>(find.byType(Container));
         final decoration = container.decoration as BoxDecoration;
-        final expectedColor = expectedColors[(i + 1) % expectedColors.length];
-        expect(decoration.color, expectedColor);
+        final expectedColorIndex = (i + 1) % expectedColors.length;
+        expect(decoration.color, expectedColors[expectedColorIndex]);
       }
     });
   });

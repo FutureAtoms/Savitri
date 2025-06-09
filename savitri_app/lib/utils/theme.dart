@@ -4,6 +4,11 @@ import 'constants.dart';
 
 /// App theme configuration
 class AppTheme {
+  // Static color getters for backward compatibility
+  static Color get primaryColor => AppColors.primary;
+  static Color get backgroundColor => AppColors.background;
+  static Color get textColor => AppColors.textPrimary;
+  
   static ThemeData get lightTheme {
     return ThemeData(
       primaryColor: AppColors.primary,

@@ -99,16 +99,10 @@ class _TherapeuticVisual3DState extends State<TherapeuticVisual3D>
     switch (widget.emotionalState) {
       case EmotionalState.calm:
         return AppColors.calm;
-      case EmotionalState.happy:
-        return AppColors.happy;
-      case EmotionalState.anxious:
-        return AppColors.anxious;
-      case EmotionalState.sad:
-        return AppColors.sad;
-      case EmotionalState.angry:
-        return AppColors.angry;
       case EmotionalState.neutral:
         return AppColors.neutral;
+      case EmotionalState.distressed:
+        return AppColors.anxious; // Assuming anxious color is the one for distressed
     }
   }
 
@@ -251,129 +245,48 @@ class _TherapeuticVisual3DState extends State<TherapeuticVisual3D>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // 3D Visualization Container
+          // Animated Background Color
           AnimatedBuilder(
-            animation: Listenable.merge([_colorAnimation, _pulseAnimation]),
+            animation: _colorAnimation,
             builder: (context, child) {
               return Container(
-                width: double.infinity,
-                height: 300,
                 decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: (_colorAnimation.value ?? AppColors.primary)
-                          .withOpacity(0.3),
-                      blurRadius: 20,
-                      spreadRadius: 5,
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: Stack(
-                    children: [
-                      // WebView for 3D visualization
-                      if (_webViewController != null)
-                        WebViewWidget(controller: _webViewController!)
-                      else
-                        // Fallback animated gradient
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: RadialGradient(
-                              colors: [
-                                (_colorAnimation.value ?? AppColors.primary)
-                                    .withOpacity(0.8),
-                                (_colorAnimation.value ?? AppColors.primary)
-                                    .withOpacity(0.3),
-                                Colors.transparent,
-                              ],
-                              stops: const [0.0, 0.6, 1.0],
-                            ),
-                          ),
-                        )
-                            .animate(onPlay: (controller) => controller.repeat())
-                            .shimmer(duration: 3.seconds, color: Colors.white24)
-                            .animate()
-                            .fadeIn(duration: 1.seconds),
-                      
-                      // Loading indicator
-                      if (!_isWebViewReady)
-                        Center(
-                          child: CircularProgressIndicator(
-                            color: AppColors.primary.withOpacity(0.5),
-                          ),
-                        ),
-                    ],
-                  ),
+                  shape: BoxShape.circle,
+                  color: _colorAnimation.value,
                 ),
               );
             },
           ),
 
-          // Breathing Guide Overlay
-          if (widget.showBreathingGuide)
-            Positioned(
-              bottom: 20,
-              child: const BreathingGuide()
-                  .animate()
-                  .fadeIn(duration: 500.ms)
-                  .slideY(begin: 0.5, end: 0),
-            ),
-
-          // Emotional State Indicator
-          Positioned(
-            top: 20,
-            right: 20,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  EmotionIndicator(emotionalState: widget.emotionalState),
-                  const SizedBox(width: 8),
-                  Text(
-                    widget.emotionalState.toString().split('.').last,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ).animate().fadeIn(delay: 500.ms),
+          // 3D Visualization WebView
+          Opacity(
+            opacity: _isWebViewReady ? 1.0 : 0.0,
+            child: WebViewWidget(controller: _webViewController!),
           ),
 
-          // Audio Level Indicator
-          if (widget.audioLevel > 0)
-            Positioned(
-              bottom: 20,
-              left: 20,
-              child: Container(
-                width: 100,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: widget.audioLevel.clamp(0.0, 1.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(3),
-                    ),
-                  ),
-                ),
-              ).animate().fadeIn(delay: 300.ms),
+          // Pulsing overlay for audio visualization
+          ScaleTransition(
+            scale: _pulseAnimation,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(widget.audioLevel * 0.1),
+              ),
             ),
+          ),
+
+          // Breathing Guide Overlay
+          if (widget.showBreathingGuide)
+            const BreathingGuide(),
+          
+          // Emotion Indicator (as a fallback or additional info)
+          Positioned(
+            bottom: 20,
+            child: Animate(
+              effects: [FadeEffect(duration: 750.ms)],
+              child: EmotionIndicator(state: widget.emotionalState),
+            ),
+          ),
         ],
       ),
     );

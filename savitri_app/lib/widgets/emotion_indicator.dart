@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import '../utils/constants.dart';
 
 enum EmotionalState {
   calm,
+  happy,
+  anxious,
+  sad,
+  angry,
   neutral,
   distressed,
 }
@@ -17,11 +22,19 @@ class EmotionIndicator extends StatelessWidget {
   Color _getColorForState() {
     switch (state) {
       case EmotionalState.calm:
-        return Colors.blue;
+        return AppColors.calm;
+      case EmotionalState.happy:
+        return AppColors.happy;
+      case EmotionalState.anxious:
+        return AppColors.anxious;
+      case EmotionalState.sad:
+        return AppColors.sad;
+      case EmotionalState.angry:
+        return AppColors.angry;
       case EmotionalState.neutral:
-        return Colors.grey;
+        return AppColors.neutral;
       case EmotionalState.distressed:
-        return Colors.orange;
+        return AppColors.anxious; // Using anxious color for distressed
     }
   }
 
@@ -36,4 +49,4 @@ class EmotionIndicator extends StatelessWidget {
       ),
     );
   }
-} 
+}

@@ -141,7 +141,7 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
               // Title
               Text(
                 'Enable $biometricType',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
                   color: AppTheme.textColor,
@@ -227,7 +227,7 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
                         )
                       : Text(
                           'Enable $biometricType',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                             color: Colors.white,
@@ -282,7 +282,7 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                     color: AppTheme.textColor,

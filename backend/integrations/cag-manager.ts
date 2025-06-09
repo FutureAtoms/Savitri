@@ -77,14 +77,16 @@ export class CAGManager {
     let score = 0.5; // Base score
 
     // Check if technique is applicable to current emotion
-    if (technique.applicableEmotions?.includes(emotionalState.primaryEmotion)) {
+    if (technique.applicableEmotions?.includes(emotionalState.dominantEmotion)) {
       score += 0.2;
     }
 
     // Check for keyword matches
     const keywords = this.extractKeywords(userInput);
     const techniqueKeywords = this.extractKeywords(technique.content);
-    const overlap = this.calculateKeywordOverlap(keywords, techniqueKeywords);
+    const techniqueNameKeywords = this.extractKeywords(technique.name.toLowerCase());
+    const allTechniqueKeywords = [...techniqueKeywords, ...techniqueNameKeywords];
+    const overlap = this.calculateKeywordOverlap(keywords, allTechniqueKeywords);
     score += overlap * 0.3;
 
     // Adjust based on evidence level

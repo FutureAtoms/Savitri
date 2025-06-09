@@ -194,7 +194,7 @@ class _BiometricLoginButtonState extends State<BiometricLoginButton>
                               const SizedBox(width: 12),
                               Text(
                                 'Login with $biometricType',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                   color: AppTheme.primaryColor,
@@ -228,7 +228,7 @@ class BiometricSettingsDialog extends StatelessWidget {
       ),
       title: Text(
         '$biometricType Settings',
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.bold,
         ),
       ),

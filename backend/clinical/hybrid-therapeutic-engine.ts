@@ -430,11 +430,14 @@ export class HybridTherapeuticEngine {
     // Generate response using the constructed prompt
     // In production, this would call Gemini AI
     const generatedText = await this.callGeminiAI(prompt);
+    
+    // Determine protocol from approach or selectedContent
+    const protocol = approach.primaryProtocol || selectedContent[0]?.protocol || 'Integrative';
 
     // Extract therapeutic elements from generated response
     const therapeuticElements = this.extractTherapeuticElements(
       generatedText,
-      selectedContent[0]?.protocol || 'General',
+      protocol,
       context
     );
 
@@ -444,7 +447,7 @@ export class HybridTherapeuticEngine {
     
     // Special handling for CBT protocol with Cognitive Restructuring
     let finalTechnique = techniqueName;
-    if (selectedContent[0]?.protocol === 'CBT' && 
+    if (protocol === 'CBT' && 
         context.userInput.toLowerCase().includes('always') ||
         context.userInput.toLowerCase().includes('failure') ||
         context.userInput.toLowerCase().includes('stupid')) {
@@ -453,7 +456,7 @@ export class HybridTherapeuticEngine {
 
     return {
       timestamp: new Date(),
-      protocol: selectedContent[0]?.protocol || 'Integrative',
+      protocol: protocol,
       technique: finalTechnique,
       response: generatedText,
       emotionalValidation: therapeuticElements.emotionalValidation,

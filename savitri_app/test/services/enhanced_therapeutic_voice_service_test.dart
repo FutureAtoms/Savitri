@@ -22,7 +22,7 @@ void main() {
     late EnhancedTherapeuticVoiceService service;
 
     setUp(() {
-      service = EnhancedTherapeuticVoiceService();
+    TestWidgetsFlutterBinding.ensureInitialized();      service = EnhancedTherapeuticVoiceService();
     });
 
     tearDown(() {

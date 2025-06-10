@@ -3,8 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:savitri_app/screens/therapy_screen.dart';
 import 'package:savitri_app/widgets/therapeutic_visual_3d.dart';
 import 'package:savitri_app/widgets/crisis_banner.dart';
+import '../test_helpers.dart';
 
 void main() {
+  setUpAll(() {
+    setupWebViewForTesting();
+  });
+
   group('TherapyScreen Tests', () {
     testWidgets('renders correctly with all components', (WidgetTester tester) async {
       await tester.pumpWidget(
@@ -12,6 +17,10 @@ void main() {
           home: TherapyScreen(),
         ),
       );
+
+      // Let animations complete
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
       // Verify main components exist
       expect(find.byType(TherapyScreen), findsOneWidget);
@@ -41,6 +50,10 @@ void main() {
         ),
       );
 
+      // Let initial animations complete
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
       // Initially not recording
       expect(find.byIcon(Icons.mic), findsOneWidget);
       expect(find.byIcon(Icons.stop), findsNothing);
@@ -48,17 +61,29 @@ void main() {
 
       // Tap microphone button
       await tester.tap(find.byIcon(Icons.mic));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       // Should show stop icon and recording status
       expect(find.byIcon(Icons.stop), findsOneWidget);
-      expect(find.byIcon(Icons.mic), findsNothing);
+      // Check specifically that the microphone button icon changed to stop
+      final micButtonIcon = find.descendant(
+        of: find.byType(GestureDetector),
+        matching: find.byIcon(Icons.mic),
+      );
+      // The button itself should not have a mic icon anymore
+      expect(micButtonIcon.evaluate().where((element) {
+        // Filter out the mic icon in the session info
+        final widget = element.widget as Icon;
+        return widget.size == 36; // The button icon size
+      }).isEmpty, isTrue);
       expect(find.text('Tap to end session'), findsOneWidget);
       expect(find.text('Recording'), findsOneWidget);
 
       // Tap stop button
       await tester.tap(find.byIcon(Icons.stop));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       // Should return to initial state
       expect(find.byIcon(Icons.mic), findsOneWidget);
@@ -73,6 +98,10 @@ void main() {
         ),
       );
 
+      // Let initial animations complete
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
       // Initially no session info
       expect(find.text('Duration'), findsNothing);
       expect(find.text('Status'), findsNothing);
@@ -80,7 +109,8 @@ void main() {
 
       // Start session
       await tester.tap(find.byIcon(Icons.mic));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
 
       // Session info should appear
       expect(find.text('Duration'), findsOneWidget);
@@ -97,13 +127,17 @@ void main() {
         ),
       );
 
+      // Let initial animations complete
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
       // Find breathing button
       final breathingButton = find.widgetWithText(InkWell, 'Breathing');
       expect(breathingButton, findsOneWidget);
 
       // Tap breathing button
       await tester.tap(breathingButton);
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       // The button should show active state
       // (We can't directly test the TherapeuticVisual3D prop change,
@@ -119,6 +153,10 @@ void main() {
           home: TherapyScreen(),
         ),
       );
+
+      // Let initial animations complete
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
 
       // Test each quick action button
       final buttons = [
@@ -148,6 +186,10 @@ void main() {
         ),
       );
 
+      // Let initial animations complete
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
       // Find and tap settings button
       final settingsButton = find.byIcon(Icons.settings);
       expect(settingsButton, findsOneWidget);
@@ -169,6 +211,10 @@ void main() {
         ),
       );
 
+      // Let initial animations complete
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
       // Find and tap history button
       final historyButton = find.byIcon(Icons.history);
       expect(historyButton, findsOneWidget);
@@ -187,9 +233,13 @@ void main() {
         ),
       );
 
+      // Let initial animations complete
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
       // Start session
       await tester.tap(find.byIcon(Icons.mic));
-      await tester.pumpAndSettle();
+      await tester.pump();
 
       // Verify initial timer shows 00:00:00
       expect(find.text('00:00:00'), findsOneWidget);

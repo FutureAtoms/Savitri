@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/therapeutic_visual_3d.dart';
@@ -28,6 +29,7 @@ class _TherapyScreenState extends State<TherapyScreen>
   // Session info
   Duration _sessionDuration = Duration.zero;
   DateTime? _sessionStartTime;
+  Timer? _sessionTimer;
 
   @override
   void initState() {
@@ -71,27 +73,33 @@ class _TherapyScreenState extends State<TherapyScreen>
     // TODO: Start WebSocket connection for real-time updates
     
     // Start session timer
-    Future.doWhile(() async {
-      await Future.delayed(const Duration(seconds: 1));
+    _sessionTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_isSessionActive && mounted) {
         setState(() {
           _sessionDuration = DateTime.now().difference(_sessionStartTime!);
         });
-        return true;
+      } else {
+        timer.cancel();
       }
-      return false;
     });
   }
 
   void _endSession() {
+    // Cancel the timer
+    _sessionTimer?.cancel();
+    _sessionTimer = null;
+    
     // TODO: Stop voice recording
     // TODO: Close WebSocket connection
     // TODO: Save session data
     
-    setState(() {
-      _sessionDuration = Duration.zero;
-      _sessionStartTime = null;
-    });
+    // Only update state if widget is still mounted
+    if (mounted) {
+      setState(() {
+        _sessionDuration = Duration.zero;
+        _sessionStartTime = null;
+      });
+    }
   }
 
   void _toggleBreathingGuide() {
@@ -117,10 +125,20 @@ class _TherapyScreenState extends State<TherapyScreen>
 
   @override
   void dispose() {
-    _micButtonAnimationController.dispose();
+    // Cancel timer if active
+    _sessionTimer?.cancel();
+    _sessionTimer = null;
+    
+    // Stop the session without setState since we're disposing
     if (_isSessionActive) {
-      _endSession();
+      _isSessionActive = false;
+      _sessionDuration = Duration.zero;
+      _sessionStartTime = null;
+      // TODO: Stop voice recording
+      // TODO: Close WebSocket connection
+      // TODO: Save session data
     }
+    _micButtonAnimationController.dispose();
     super.dispose();
   }
 

@@ -125,6 +125,11 @@ class MockBiometricAuthService extends BiometricAuthService {
     notifyListeners();
     return true;
   }
+  
+  @override
+  Future<bool> checkBiometricAvailability() async {
+    return _mockIsAvailable;
+  }
 }
 
 void main() {
@@ -218,7 +223,8 @@ void main() {
         ),
       );
 
-      expect(find.text('Enable Touch ID'), findsOneWidget);
+      // Find button with text specifically (not the title)
+      expect(find.widgetWithText(ElevatedButton, 'Enable Touch ID'), findsOneWidget);
       expect(find.text('Enhanced Security'), findsOneWidget);
       expect(find.text('Quick Access'), findsOneWidget);
       expect(find.text('Privacy Protected'), findsOneWidget);
@@ -237,7 +243,8 @@ void main() {
         ),
       );
 
-      expect(find.text('Enable Face ID'), findsOneWidget);
+      // Find button with text specifically (not the title)
+      expect(find.widgetWithText(ElevatedButton, 'Enable Face ID'), findsOneWidget);
     });
 
     testWidgets('should handle enrollment process', (WidgetTester tester) async {
@@ -252,15 +259,31 @@ void main() {
         ),
       );
 
+      // First ensure the button is visible by scrolling
+      final scrollFinder = find.byType(SingleChildScrollView);
+      final buttonFinder = find.widgetWithText(ElevatedButton, 'Enable Touch ID');
+      
+      // Scroll until the button is visible
+      await tester.dragUntilVisible(
+        buttonFinder,
+        scrollFinder,
+        const Offset(0, -50),
+      );
+      
       // Tap enable button
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Enable Touch ID'));
+      await tester.tap(buttonFinder);
       await tester.pump();
 
-      // Should show loading
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // The button should show loading indicator
+      expect(find.descendant(
+        of: find.byType(ElevatedButton),
+        matching: find.byType(CircularProgressIndicator),
+      ), findsOneWidget);
 
       // Wait for enrollment process
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Should be enrolled
       expect(mockService.isEnabled, isTrue);
@@ -279,11 +302,24 @@ void main() {
         ),
       );
 
-      await tester.tap(find.widgetWithText(ElevatedButton, 'Enable Touch ID'));
-      await tester.pumpAndSettle();
+      // First ensure the button is visible by scrolling
+      final scrollFinder = find.byType(SingleChildScrollView);
+      final buttonFinder = find.widgetWithText(ElevatedButton, 'Enable Touch ID');
+      
+      // Scroll until the button is visible
+      await tester.dragUntilVisible(
+        buttonFinder,
+        scrollFinder,
+        const Offset(0, -50),
+      );
+
+      await tester.tap(buttonFinder);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Biometric authentication is not available on this device'), 
-             findsOneWidget);
+              findsOneWidget);
     });
   });
 
@@ -421,6 +457,9 @@ void main() {
       await tester.pump();
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      
+      // Complete the authentication
+      await tester.pumpAndSettle();
     });
   });
 

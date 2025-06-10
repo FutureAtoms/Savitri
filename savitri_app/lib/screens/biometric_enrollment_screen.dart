@@ -109,11 +109,11 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
         elevation: 0,
       ),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              const SizedBox(height: 20),
               // Animated biometric icon
               AnimatedBuilder(
                 animation: _scaleAnimation,
@@ -178,7 +178,7 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
                 'HIPAA-compliant security measures',
               ),
               
-              const Spacer(),
+              const SizedBox(height: 40),
               
               // Status message
               if (_statusMessage.isNotEmpty)
@@ -250,6 +250,7 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),

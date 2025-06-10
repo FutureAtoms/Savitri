@@ -284,6 +284,10 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(milliseconds: 100));
+      
+      // Wait for the 1-second delay after successful enrollment
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pumpAndSettle();
 
       // Should be enrolled
       expect(mockService.isEnabled, isTrue);

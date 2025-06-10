@@ -51,6 +51,40 @@ class MockBiometricAuthService extends BiometricAuthService {
   }
 
   @override
+  String getBiometricTypeName() {
+    if (_mockBiometrics.isEmpty) {
+      return 'Biometric Authentication';
+    }
+
+    if (_mockBiometrics.contains(BiometricType.face)) {
+      return 'Face ID';
+    } else if (_mockBiometrics.contains(BiometricType.fingerprint)) {
+      return 'Touch ID';
+    } else if (_mockBiometrics.contains(BiometricType.iris)) {
+      return 'Iris Authentication';
+    }
+
+    return 'Biometric Authentication';
+  }
+
+  @override
+  IconData getBiometricIcon() {
+    if (_mockBiometrics.isEmpty) {
+      return Icons.fingerprint;
+    }
+
+    if (_mockBiometrics.contains(BiometricType.face)) {
+      return Icons.face;
+    } else if (_mockBiometrics.contains(BiometricType.fingerprint)) {
+      return Icons.fingerprint;
+    } else if (_mockBiometrics.contains(BiometricType.iris)) {
+      return Icons.remove_red_eye;
+    }
+
+    return Icons.fingerprint;
+  }
+
+  @override
   Future<bool> authenticate({
     required String reason,
     bool useErrorDialogs = true,

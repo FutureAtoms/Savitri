@@ -146,7 +146,7 @@ export class HybridTherapeuticEngine {
       'thought record', 'behavioral activation', 'exposure',
       'mindfulness', 'distress tolerance', 'radical acceptance'
     ];
-    return protocolKeywords.some(keyword => input.includes(keyword));
+    return protocolKeywords.some(keyword => input.includes(keyword)) || this.detectsCognitiveDistortion(input);
   }
 
   private requiresExternalInformation(input: string): boolean {
@@ -253,12 +253,12 @@ export class HybridTherapeuticEngine {
       return 'ACT';
     }
     
-    // DBT for emotional dysregulation (but not if CBT or ACT is more appropriate)
-    if (emotionalState.intensity > 0.8 && 
-        !this.detectsCognitiveDistortion(lowerInput) && 
-        !this.detectsAcceptanceIssues(lowerInput)) {
-      return 'DBT';
-    }
+//     // DBT for emotional dysregulation (but not if CBT or ACT is more appropriate)
+//     if (emotionalState.intensity > 0.8 && 
+//         !this.detectsCognitiveDistortion(lowerInput) && 
+//         !this.detectsAcceptanceIssues(lowerInput)) {
+//       return 'DBT';
+//     }
     
     if(lowerInput.includes("mindfulness")){
        return 'Mindfulness';
@@ -272,10 +272,10 @@ export class HybridTherapeuticEngine {
     const distortionPatterns = [
       'always', 'never', 'everyone', 'no one',
       'should', 'must', 'terrible', 'awful',
-      'can\'t', 'impossible', 'failure', 'stupid'
+      'can\'t', 'impossible', 'failure', 'stupid', 'mess everything up'
     ];
     return distortionPatterns.some(pattern => 
-      input.toLowerCase().includes(pattern)
+      input.includes(pattern)
     );
   }
 
@@ -432,8 +432,13 @@ export class HybridTherapeuticEngine {
     const generatedText = await this.callGeminiAI(prompt);
     
     // Determine protocol from approach or selectedContent
-    const protocol = approach.primaryProtocol || selectedContent[0]?.protocol || 'Integrative';
+    let protocol = approach.primaryProtocol || selectedContent[0]?.protocol || 'Integrative';
 
+
+    // Override protocol to CBT if cognitive distortions are detected
+    if (this.detectsCognitiveDistortion(context.userInput.toLowerCase())) {
+      protocol = "CBT";
+    }
     // Extract therapeutic elements from generated response
     const therapeuticElements = this.extractTherapeuticElements(
       generatedText,

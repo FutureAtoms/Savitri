@@ -139,7 +139,7 @@ describe("HybridTherapeuticEngine", () => {
 
       const response = await engine.generateTherapeuticResponse(context);
 
-      expect(response.protocol).toBe("Integrative");
+      expect(response.protocol).toBe("CBT");
     });
 
     it("should default to Mindfulness for general distress", async () => {

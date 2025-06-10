@@ -26,7 +26,10 @@ void main() {
     });
 
     tearDown(() {
-      service.dispose();
+      // Only dispose if not already disposed in the test
+      if (service.hasListeners) {
+        service.dispose();
+      }
     });
 
     group('Initial State Tests', () {
@@ -181,12 +184,22 @@ void main() {
 
     group('Resource Cleanup Tests', () {
       test('dispose should clean up all resources', () {
-        service.dispose();
+        // Create a new service instance for this specific test
+        final disposableService = EnhancedTherapeuticVoiceService();
+        
+        // Add a listener to ensure the service is active
+        disposableService.addListener(() {});
+        
+        // Dispose the service
+        disposableService.dispose();
+        
         // After disposal:
         // - Timer should be cancelled
         // - Stream controller should be closed
         // - Subscriptions should be cancelled
         // - Recorder should be disposed
+        
+        // Note: We don't dispose 'service' here because tearDown will do it
       });
 
       test('stopping recording should clean up resources', () async {

@@ -60,7 +60,15 @@ class _TherapeuticVisual3DState extends State<TherapeuticVisual3D>
       curve: Curves.easeInOut,
     ));
 
-    _updateColorAnimation();
+    // Initialize color animation with initial color
+    final Color initialColor = _getColorForState();
+    _colorAnimation = ColorTween(
+      begin: initialColor,
+      end: initialColor,
+    ).animate(CurvedAnimation(
+      parent: _colorAnimationController,
+      curve: Curves.easeInOut,
+    ));
   }
 
   void _initializeWebView() {

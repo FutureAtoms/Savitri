@@ -292,7 +292,7 @@ describe('CrisisDetector', () => {
       //   "I'm dying to see that movie.",
       //   "That joke was suicide - it bombed completely.", // Will trigger "suicide" keyword
       //   "I'm cutting back on expenses this month." // Will trigger "cutting" keyword
-      // ];
+      ];
 
       // Test that some metaphorical language still triggers keywords (current behavior)
       const text = "This game is like a suicide mission.";

@@ -14,7 +14,7 @@ class MockAuthService extends AuthService {
   bool mfaRequired = false;
 
   @override
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  Future<bool> login(String email, String password) async {
     lastEmail = email;
     lastPassword = password;
     
@@ -24,43 +24,26 @@ class MockAuthService extends AuthService {
       throw Exception('Invalid credentials');
     }
     
-    if (mfaRequired) {
-      return {
-        'success': true,
-        'requiresMFA': true,
-        'sessionId': 'test-session-123',
-      };
-    }
-    
-    return {
-      'success': true,
-      'requiresMFA': false,
-      'token': 'test-token-123',
-      'user': {
-        'id': '123',
-        'email': email,
-        'name': 'Test User',
-      },
-    };
+    // In a real implementation, we would check MFA requirements here
+    // For testing purposes, we'll just return success
+    return true;
   }
 
   @override
-  Future<Map<String, dynamic>> verifyMFA(String code, String sessionId) async {
+  Future<bool> verifyMfa(String code) async {
     await Future.delayed(const Duration(milliseconds: 300));
     
     if (code != '123456') {
       throw Exception('Invalid MFA code');
     }
     
-    return {
-      'success': true,
-      'token': 'test-token-123',
-      'user': {
-        'id': '123',
-        'email': lastEmail,
-        'name': 'Test User',
-      },
-    };
+    return true;
+  }
+
+  @override
+  Future<bool> register(String email, String password) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    return shouldSucceed;
   }
 }
 

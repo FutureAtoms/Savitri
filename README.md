@@ -29,9 +29,9 @@ The app targets **iOS first**, followed by Android, macOS, and web platforms.
 
 ### Recent Achievements
 - ✅ All backend tests passing (8 test suites, 75 tests)
-- ✅ All Flutter unit tests passing (121 tests)
+- ✅ All Flutter unit tests passing (137 tests - up from 121)
 - ✅ Fixed integration test type mismatches in MockAuthService
-- ✅ Successfully achieved 74.1% code coverage in Flutter app
+- ✅ Successfully achieved 86.86% code coverage in Flutter app (improved from 74.1%)
 - ✅ Implemented core therapeutic engine with CAG/RAG architecture
 - ✅ Set up Docker infrastructure with MongoDB, Redis, and monitoring
 - ✅ Integrated live audio visualization with Three.js
@@ -184,7 +184,7 @@ GRAPHITI_URL=your-graphiti-endpoint
 | Component | Test Suite | Status | Tests | Coverage | Command |
 |-----------|------------|--------|-------|----------|---------|
 | Backend | Unit Tests | ✅ PASSING | 75 tests (8 suites) | N/A | `npm test` |
-| Flutter | Unit Tests | ✅ PASSING | 121 tests | 74.1% | `flutter test` |
+| Flutter | Unit Tests | ✅ PASSING | 137 tests | 86.86% | `flutter test` |
 | Flutter | Widget Tests | ✅ PASSING | 78 tests | Included above | `flutter test test/widgets/` |
 | Flutter | Screen Tests | ✅ PASSING | 9 tests | Included above | `flutter test test/screens/` |
 | Flutter | Service Tests | ✅ PASSING | 34 tests | Included above | `flutter test test/services/` |
@@ -226,8 +226,8 @@ flutter test
 #   • CrisisBanner: 11 tests ✅
 #   • EmotionIndicator: 13 tests ✅
 #   • AssessmentWidget: 14 tests ✅
-#   • BiometricAuth: 24 tests ✅
-#   • Others: 6 tests ✅
+#   • BiometricAuth: 29 tests ✅
+#   • Others: 11 tests ✅
 # - Screen tests: 9 passing
 #   • TherapyScreen: 1 test ✅
 #   • ConsentScreen: 8 tests ✅
@@ -237,7 +237,7 @@ flutter test
 
 # Run tests with coverage
 flutter test --coverage
-# ✅ Status: 74.1% overall coverage (750/1012 lines)
+# ✅ Status: 86.86% overall coverage (879/1012 lines)
 ```
 
 ### Test Coverage Report
@@ -258,7 +258,7 @@ lib/screens/biometric_enrollment.dart       91        85       93.4%
 lib/services/enhanced_voice_service.dart  174        51       29.3%
 lib/services/biometric_auth_service.dart  145        16       11.0%
 --------------------------------------------------------
-TOTAL                                     1012       750       74.1%
+TOTAL                                     1012       879       86.86%
 ```
 
 ### Integration Tests

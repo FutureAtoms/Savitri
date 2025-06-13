@@ -2,6 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
+import 'dart:async';
+import 'dart:typed_data';
+
+/// Sets up all platform channel mocks for testing
+void setupAllMocks() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setupWebViewForTesting();
+  setupPermissionHandlerMock();
+  setupRecordMock();
+  setupLocalAuthMock();
+  setupPathProviderMock();
+}
 
 /// Sets up WebView platform for testing
 void setupWebViewForTesting() {
@@ -9,6 +21,159 @@ void setupWebViewForTesting() {
   
   // Set up a mock WebView platform instance
   WebViewPlatform.instance = MockWebViewPlatform();
+}
+
+/// Sets up Permission handler mock
+void setupPermissionHandlerMock() {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    const MethodChannel('flutter.baseflow.com/permissions/methods'),
+    (MethodCall methodCall) async {
+      switch (methodCall.method) {
+        case 'checkPermissionStatus':
+          final int permission = methodCall.arguments;
+          if (permission == 7) { // Microphone permission
+            return 1; // PermissionStatus.granted
+          }
+          return 0; // PermissionStatus.denied
+        case 'requestPermissions':
+          final List<int> permissions = methodCall.arguments;
+          final Map<int, int> result = {};
+          for (final permission in permissions) {
+            result[permission] = permission == 7 ? 1 : 0; // Grant microphone, deny others
+          }
+          return result;
+        case 'shouldShowRequestPermissionRationale':
+          return false;
+        case 'openAppSettings':
+          return true;
+        default:
+          return null;
+      }
+    },
+  );
+}
+
+/// Sets up Record (audio recorder) mock
+void setupRecordMock() {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    const MethodChannel('com.llfbandit.record/messages'),
+    (MethodCall methodCall) async {
+      switch (methodCall.method) {
+        case 'hasPermission':
+          return true;
+        case 'start':
+          // Return a mock file path
+          return '/tmp/mock_recording.wav';
+        case 'stop':
+          // Return the mock recording path
+          return '/tmp/mock_recording.wav';
+        case 'pause':
+          return null;
+        case 'resume':
+          return null;
+        case 'isPaused':
+          return false;
+        case 'isRecording':
+          return true;
+        case 'getAmplitude':
+          return {
+            'current': -20.0,
+            'max': -10.0,
+          };
+        case 'dispose':
+          return null;
+        default:
+          return null;
+      }
+    },
+  );
+}
+
+/// Sets up Local Auth mock
+void setupLocalAuthMock() {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    const MethodChannel('plugins.flutter.io/local_auth'),
+    (MethodCall methodCall) async {
+      switch (methodCall.method) {
+        case 'getAvailableBiometrics':
+          // Return available biometric types
+          return <String>['face', 'fingerprint'];
+        case 'deviceSupportsBiometrics':
+          return true;
+        case 'isDeviceSupported':
+          return true;
+        case 'stopAuthentication':
+          return true;
+        case 'authenticate':
+          // Extract authenticate options
+          final Map<String, dynamic> args = Map<String, dynamic>.from(methodCall.arguments);
+          final bool biometricOnly = args['biometricOnly'] ?? false;
+          // Simulate successful authentication
+          return true;
+        case 'getEnrolledBiometrics':
+          return <String>['face'];
+        default:
+          return null;
+      }
+    },
+  );
+}
+
+/// Sets up Path Provider mock
+void setupPathProviderMock() {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    const MethodChannel('plugins.flutter.io/path_provider'),
+    (MethodCall methodCall) async {
+      switch (methodCall.method) {
+        case 'getTemporaryDirectory':
+          return '/tmp';
+        case 'getApplicationDocumentsDirectory':
+          return '/tmp/documents';
+        case 'getApplicationSupportDirectory':
+          return '/tmp/support';
+        case 'getLibraryDirectory':
+          return '/tmp/library';
+        case 'getExternalStorageDirectory':
+          return '/tmp/external';
+        case 'getExternalCacheDirectories':
+          return <String>['/tmp/external_cache'];
+        case 'getExternalStorageDirectories':
+          return <String>['/tmp/external_storage'];
+        case 'getDownloadsDirectory':
+          return '/tmp/downloads';
+        default:
+          return null;
+      }
+    },
+  );
+}
+
+/// Clear all mocks
+void clearAllMocks() {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    const MethodChannel('flutter.baseflow.com/permissions/methods'),
+    null,
+  );
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    const MethodChannel('com.llfbandit.record/messages'),
+    null,
+  );
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    const MethodChannel('plugins.flutter.io/local_auth'),
+    null,
+  );
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+    const MethodChannel('plugins.flutter.io/path_provider'),
+    null,
+  );
 }
 
 /// Mock implementation of WebViewPlatform for testing

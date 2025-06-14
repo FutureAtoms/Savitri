@@ -286,7 +286,7 @@ class _TherapeuticVisual3DState extends State<TherapeuticVisual3D>
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha:  widget.audioLevel * 0.1),
+                color: Colors.white.withOpacity(widget.audioLevel * 0.1),
               ),
             ),
           ),

@@ -41,12 +41,12 @@
 
 # Node
 node_modules/
-package-lock.json
+# package-lock.json - Commented out to allow npm ci in CI
 /savitri_app/clinical-intelligence/node_modules/
 /savitri_app/clinical-intelligence/dist/
-/savitri_app/clinical-intelligence/package-lock.json
+# /savitri_app/clinical-intelligence/package-lock.json
 /live-audio/node_modules/
-/live-audio/package-lock.json
+# /live-audio/package-lock.json
 
 # Task files
 tasks.json

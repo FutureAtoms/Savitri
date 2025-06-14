@@ -53,7 +53,7 @@ class TestableTherapeuticVisual3D extends StatelessWidget {
                   width: 50,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha:  0.8),
+                    color: Colors.white.withOpacity(0.8),
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),

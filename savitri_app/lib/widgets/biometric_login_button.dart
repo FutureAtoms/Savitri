@@ -135,7 +135,7 @@ class _BiometricLoginButtonState extends State<BiometricLoginButton>
                     Expanded(
                       child: Container(
                         height: 1,
-                        color: AppTheme.textColor.withValues(alpha:  0.2),
+                        color: AppTheme.textColor.withOpacity(0.2),
                       ),
                     ),
                     Padding(
@@ -143,7 +143,7 @@ class _BiometricLoginButtonState extends State<BiometricLoginButton>
                       child: Text(
                         'OR',
                         style: TextStyle(
-                          color: AppTheme.textColor.withValues(alpha:  0.5),
+                          color: AppTheme.textColor.withOpacity(0.5),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
@@ -152,7 +152,7 @@ class _BiometricLoginButtonState extends State<BiometricLoginButton>
                     Expanded(
                       child: Container(
                         height: 1,
-                        color: AppTheme.textColor.withValues(alpha:  0.2),
+                        color: AppTheme.textColor.withOpacity(0.2),
                       ),
                     ),
                   ],

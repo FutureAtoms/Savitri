@@ -126,7 +126,7 @@ class _TherapeuticVisual3DState extends State<TherapeuticVisual3D>
     if (!_isWebViewReady || _webViewController == null) return;
 
     final color = _getColorForState();
-    final hexColor = '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}';
+    final hexColor = '#${color.value.toRadixString(16).padLeft(8, '0').substring(2)}';
     
     _webViewController!.runJavaScript('''
       if (window.updateVisualization) {

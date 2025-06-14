@@ -81,7 +81,7 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.textLight.withValues(alpha:  0.2)),
+          borderSide: BorderSide(color: AppColors.textLight.withOpacity(0.2)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -110,7 +110,7 @@ class AppTheme {
       
       // Chip theme
       chipTheme: ChipThemeData(
-        backgroundColor: AppColors.primaryLight.withValues(alpha:  0.2),
+        backgroundColor: AppColors.primaryLight.withOpacity(0.2),
         selectedColor: AppColors.primary,
         labelStyle: AppTextStyles.body2,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

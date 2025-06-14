@@ -62,7 +62,7 @@ void main() {
     Widget createTestApp() {
       return MultiProvider(
         providers: [
-          ChangeNotifierProvider<AuthService>.value(value: mockAuthService),
+          Provider<AuthService>.value(value: mockAuthService),
           ChangeNotifierProvider<BiometricAuthService>.value(value: biometricService),
         ],
         child: MaterialApp(

@@ -189,7 +189,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget> {
           LinearProgressIndicator(
             value: (currentQuestionIndex + 1) / questions.length,
             backgroundColor: Colors.grey[300],
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+            valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
           ),
           
           const SizedBox(height: 20),
@@ -308,7 +308,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget> {
                 key: const Key('assessment_previous_button'),
                 onPressed: currentQuestionIndex > 0 ? _previousQuestion : null,
                 icon: const Icon(Icons.arrow_back),
-                label: Text('Previous'),
+                label: const Text('Previous'),
               ),
               
               // Progress text
@@ -335,7 +335,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Assessment Complete',
                     style: TextStyle(
                       fontSize: 18,

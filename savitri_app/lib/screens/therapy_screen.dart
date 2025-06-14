@@ -231,7 +231,7 @@ class _TherapyScreenState extends State<TherapyScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity( 0.05),
+            color: Colors.black.withValues(alpha:  0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -248,7 +248,7 @@ class _TherapyScreenState extends State<TherapyScreen>
           Container(
             height: 40,
             width: 1,
-            color: AppColors.textLight.withOpacity( 0.3),
+            color: AppColors.textLight.withValues(alpha:  0.3),
           ),
           _buildInfoItem(
             icon: Icons.mic,
@@ -259,7 +259,7 @@ class _TherapyScreenState extends State<TherapyScreen>
           Container(
             height: 40,
             width: 1,
-            color: AppColors.textLight.withOpacity( 0.3),
+            color: AppColors.textLight.withValues(alpha:  0.3),
           ),
           _buildInfoItem(
             icon: Icons.mood,
@@ -308,7 +308,7 @@ class _TherapyScreenState extends State<TherapyScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity( 0.05),
+            color: Colors.black.withValues(alpha:  0.05),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -370,13 +370,13 @@ class _TherapyScreenState extends State<TherapyScreen>
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: _isSessionActive
-                              ? [AppColors.error, AppColors.error.withOpacity( 0.8)]
+                              ? [AppColors.error, AppColors.error.withValues(alpha:  0.8)]
                               : [AppColors.primary, AppColors.primaryDark],
                         ),
                         boxShadow: [
                           BoxShadow(
                             color: (_isSessionActive ? AppColors.error : AppColors.primary)
-                                .withOpacity( 0.3),
+                                .withValues(alpha:  0.3),
                             blurRadius: 20,
                             spreadRadius: 5,
                           ),
@@ -419,10 +419,10 @@ class _TherapyScreenState extends State<TherapyScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isActive ? AppColors.primary.withOpacity( 0.1) : Colors.transparent,
+          color: isActive ? AppColors.primary.withValues(alpha:  0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isActive ? AppColors.primary : AppColors.textLight.withOpacity( 0.2),
+            color: isActive ? AppColors.primary : AppColors.textLight.withValues(alpha:  0.2),
           ),
         ),
         child: Column(

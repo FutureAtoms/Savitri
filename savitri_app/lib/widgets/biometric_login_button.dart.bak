@@ -215,7 +215,7 @@ class _BiometricLoginButtonState extends State<BiometricLoginButton>
 
 /// Dialog for biometric settings
 class BiometricSettingsDialog extends StatelessWidget {
-  const BiometricSettingsDialog({super.key});
+  const BiometricSettingsDialog({Key? key});
 
   @override
   Widget build(BuildContext context) {
@@ -228,7 +228,7 @@ class BiometricSettingsDialog extends StatelessWidget {
       ),
       title: Text(
         '$biometricType Settings',
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.bold,
         ),
       ),

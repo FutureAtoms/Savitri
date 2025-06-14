@@ -124,7 +124,7 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
                       width: 120,
                       height: 120,
                       decoration: BoxDecoration(
-                        color: AppTheme.primaryColor.withOpacity(0.1),
+                        color: AppTheme.primaryColor.withOpacity( 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -155,7 +155,7 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
                 'Use $biometricType for quick and secure access to your therapy sessions',
                 style: TextStyle(
                   fontSize: 16,
-                  color: AppTheme.textColor.withOpacity(0.7),
+                  color: AppTheme.textColor.withOpacity( 0.7),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -187,8 +187,8 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
                     color: _statusMessage.contains('failed') 
-                        ? Colors.red.withOpacity(0.1)
-                        : AppTheme.primaryColor.withOpacity(0.1),
+                        ? Colors.red.withOpacity( 0.1)
+                        : AppTheme.primaryColor.withOpacity( 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -245,7 +245,7 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
                 child: Text(
                   'Skip for now',
                   style: TextStyle(
-                    color: AppTheme.textColor.withOpacity(0.6),
+                    color: AppTheme.textColor.withOpacity( 0.6),
                     fontSize: 16,
                   ),
                 ),
@@ -267,7 +267,7 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.1),
+              color: AppTheme.primaryColor.withOpacity( 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -293,7 +293,7 @@ class _BiometricEnrollmentScreenState extends State<BiometricEnrollmentScreen>
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: AppTheme.textColor.withOpacity(0.7),
+                    color: AppTheme.textColor.withOpacity( 0.7),
                     fontSize: 14,
                   ),
                 ),

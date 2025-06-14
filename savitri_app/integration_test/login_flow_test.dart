@@ -362,7 +362,7 @@ void main() {
       await tester.pumpWidget(createTestApp());
       await tester.pumpAndSettle();
 
-      final testEmail = 'remember@example.com';
+      const testEmail = 'remember@example.com';
 
       // Enter credentials
       await tester.enterText(

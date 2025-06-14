@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
-import 'dart:async';
-import 'dart:typed_data';
-
 /// Sets up all platform channel mocks for testing
 void setupAllMocks() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -109,8 +106,6 @@ void setupLocalAuthMock() {
           return true;
         case 'authenticate':
           // Extract authenticate options
-          final Map<String, dynamic> args = Map<String, dynamic>.from(methodCall.arguments);
-          final bool biometricOnly = args['biometricOnly'] ?? false;
           // Simulate successful authentication
           return true;
         case 'getEnrolledBiometrics':
@@ -241,9 +236,7 @@ class MockPlatformWebViewController extends PlatformWebViewController {
   @override
   Future<void> setBackgroundColor(Color color) async {}
 
-  @override
-  Future<void> setNavigationDelegate(
-      PlatformNavigationDelegate navigationDelegate) async {
+  Future<void> setNavigationDelegate(      PlatformNavigationDelegate navigationDelegate) async {
     _navigationDelegate = navigationDelegate;
   }
   

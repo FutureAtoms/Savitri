@@ -22,6 +22,8 @@ class _MfaScreenState extends State<MfaScreen> {
 
     final success = await _authService.verifyMfa(_mfaController.text);
 
+    if (!mounted) return;
+    
     if (success) {
       Navigator.pushReplacement(
         context,

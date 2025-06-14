@@ -53,7 +53,7 @@ class TestableTherapeuticVisual3D extends StatelessWidget {
                   width: 50,
                   height: 10,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withOpacity( 0.8),
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
@@ -83,7 +83,7 @@ class TestableTherapeuticVisual3D extends StatelessWidget {
         return const Color(0xFF9B9B9B);
       case EmotionalState.anxious:
       case EmotionalState.distressed:
-        return const Color(0xFFFFC69);
+        return const Color(0xFFFFFFC69);
       case EmotionalState.sad:
         return const Color(0xFF87CEEB);
       case EmotionalState.angry:

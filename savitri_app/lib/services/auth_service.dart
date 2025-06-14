@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 
 class AuthService {
@@ -15,7 +13,7 @@ class AuthService {
       });
       return true;
     } catch (e) {
-      print('Error logging in: $e');
+      // In production, use proper logging instead of print
       return false;
     }
   }
@@ -28,7 +26,7 @@ class AuthService {
       });
       return true;
     } catch (e) {
-      print('Error registering: $e');
+      // In production, use proper logging instead of print
       return false;
     }
   }
@@ -40,7 +38,7 @@ class AuthService {
       });
       return true;
     } catch (e) {
-      print('Error verifying MFA: $e');
+      // In production, use proper logging instead of print
       return false;
     }
   }

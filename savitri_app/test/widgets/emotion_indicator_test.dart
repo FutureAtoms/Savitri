@@ -126,7 +126,7 @@ void main() {
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          final states = EmotionalState.values;
+                          const states = EmotionalState.values;
                           final currentIndex = states.indexOf(currentState);
                           currentState = states[(currentIndex + 1) % states.length];
                         });
@@ -311,7 +311,7 @@ void main() {
                       onPressed: () {
                         setState(() {
                           // Cycle through states rapidly
-                          final states = EmotionalState.values;
+                          const states = EmotionalState.values;
                           final currentIndex = states.indexOf(currentState);
                           currentState = states[(currentIndex + 1) % states.length];
                         });

@@ -45,6 +45,7 @@ dependencies:
   uuid: ^4.2.2
   intl: ^0.18.1
   path_provider: ^2.1.1
+  path: ^1.8.3
   connectivity_plus: ^5.0.2
   crypto: ^3.0.3
 
@@ -56,6 +57,7 @@ dev_dependencies:
   mockito: ^5.4.4
   build_runner: ^2.4.6
   flutter_lints: ^3.0.0
+  webview_flutter_platform_interface: ^2.8.0
 
 flutter:
   uses-material-design: true

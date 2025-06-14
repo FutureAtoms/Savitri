@@ -30,7 +30,7 @@ class SavitriApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
+      providers: const [
         // Add providers here as needed
       ],
       child: MaterialApp(

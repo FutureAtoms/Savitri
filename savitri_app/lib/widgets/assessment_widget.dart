@@ -23,11 +23,11 @@ class AssessmentWidget extends StatefulWidget {
   final Function(String, int)? onAnswerChanged;
 
   const AssessmentWidget({
-    Key? key,
+    super.key,
     required this.type,
     this.onCompleted,
     this.onAnswerChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<AssessmentWidget> createState() => _AssessmentWidgetState();
@@ -308,7 +308,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget> {
                 key: const Key('assessment_previous_button'),
                 onPressed: currentQuestionIndex > 0 ? _previousQuestion : null,
                 icon: const Icon(Icons.arrow_back),
-                label: const Text('Previous'),
+                label: Text('Previous'),
               ),
               
               // Progress text
@@ -335,7 +335,7 @@ class _AssessmentWidgetState extends State<AssessmentWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Assessment Complete',
                     style: TextStyle(
                       fontSize: 18,

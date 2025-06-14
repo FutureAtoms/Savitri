@@ -1,184 +1,142 @@
-import crypto from 'crypto';
-import winston from 'winston';
+import { AuditLogger } from './audit-logger';
+import { EncryptionManager } from './encryption-manager';
 
 /**
  * HIPAA Compliance Manager
- * Handles encryption and audit logging for PHI (Protected Health Information)
+ * Ensures all PHI operations are properly encrypted and audited
  */
 export class HIPAAComplianceManager {
-  private static readonly ALGORITHM = 'AES-256-GCM';
-  private static readonly IV_LENGTH = 16;
-  private static readonly SALT_LENGTH = 64;
-  private static readonly TAG_LENGTH = 16;
-  private static readonly PBKDF2_ITERATIONS = 100000;
-  
-  private encryptionKey: Buffer;
   private auditLogger: AuditLogger;
+  private encryptionManager: EncryptionManager;
 
   constructor(masterKey: string) {
-    this.encryptionKey = this.deriveKey(masterKey);
     this.auditLogger = new AuditLogger();
+    this.encryptionManager = new EncryptionManager(masterKey);
   }
 
   /**
-   * Encrypts sensitive data using AES-256-GCM
+   * Processes PHI data with proper encryption and audit logging
    */
-  public encrypt(data: string | Buffer): string {
-    const iv = crypto.randomBytes(this.constructor.IV_LENGTH);
-    const salt = crypto.randomBytes(this.constructor.SALT_LENGTH);
-    
-    const key = crypto.pbkdf2Sync(this.encryptionKey, salt, this.constructor.PBKDF2_ITERATIONS, 32, 'sha256');
-    const cipher = crypto.createCipheriv(this.constructor.ALGORITHM, key, iv);
-    
-    const encrypted = Buffer.concat([
-      cipher.update(data, 'utf8'),
-      cipher.final()
-    ]);
-    
-    const tag = cipher.getAuthTag();
-    
-    // Combine salt, iv, tag, and encrypted data
-    const combined = Buffer.concat([salt, iv, tag, encrypted]);
-    
-    this.auditLogger.logEncryption({
-      action: 'encrypt',
-      dataType: 'PHI',
-      timestamp: new Date().toISOString()
-    });
-    
-    return combined.toString('base64');
+  async processPHI(
+    userId: string,
+    operation: string,
+    data: any,
+    metadata?: any
+  ): Promise<any> {
+    try {
+      // Log the access attempt
+      await this.auditLogger.logPHIAccess({
+        userId,
+        action: operation,
+        resource: 'PHI_DATA',
+        metadata,
+        success: true
+      });
+
+      // Encrypt the data using AES-256-GCM
+      if (operation === 'STORE' || operation === 'UPDATE') {
+        return await this.encryptionManager.encrypt(
+          typeof data === 'string' ? data : JSON.stringify(data)
+        );
+      }
+
+      // For read operations, just log and return
+      return data;
+    } catch (error) {
+      // Log failed access attempt
+      await this.auditLogger.logPHIAccess({
+        userId,
+        action: operation,
+        resource: 'PHI_DATA',
+        metadata: { error: error.message },
+        success: false
+      });
+
+      throw error;
+    }
   }
 
   /**
-   * Decrypts data encrypted with AES-256-GCM
+   * Validates HIPAA compliance for data operations
    */
-  public decrypt(encryptedData: string): string {
-    const buffer = Buffer.from(encryptedData, 'base64');
-    
-    const salt = buffer.slice(0, this.constructor.SALT_LENGTH);
-    const iv = buffer.slice(this.constructor.SALT_LENGTH, this.constructor.SALT_LENGTH + this.constructor.IV_LENGTH);
-    const tag = buffer.slice(this.constructor.SALT_LENGTH + this.constructor.IV_LENGTH, this.constructor.SALT_LENGTH + this.constructor.IV_LENGTH + this.constructor.TAG_LENGTH);
-    const encrypted = buffer.slice(this.constructor.SALT_LENGTH + this.constructor.IV_LENGTH + this.constructor.TAG_LENGTH);
-    
-    const key = crypto.pbkdf2Sync(this.encryptionKey, salt, this.constructor.PBKDF2_ITERATIONS, 32, 'sha256');
-    const decipher = crypto.createDecipheriv(this.constructor.ALGORITHM, key, iv);
-    decipher.setAuthTag(tag);
-    
-    const decrypted = Buffer.concat([
-      decipher.update(encrypted),
-      decipher.final()
-    ]);
-    
-    this.auditLogger.logDecryption({
-      action: 'decrypt',
-      dataType: 'PHI',
-      timestamp: new Date().toISOString()
-    });
-    
-    return decrypted.toString('utf8');
-  }
-
-  /**
-   * Derives a key from the master key
-   */
-  private deriveKey(masterKey: string): Buffer {
-    return crypto.createHash('sha256').update(masterKey).digest();
-  }
-
-  /**
-   * Get the audit logger instance
-   */
-  public getAuditLogger(): AuditLogger {
-    return this.auditLogger;
-  }
-}
-
-/**
- * Audit Logger for HIPAA compliance
- * Logs all access to PHI
- */
-export class AuditLogger {
-  private logger: winston.Logger;
-
-  constructor() {
-    this.logger = winston.createLogger({
-      level: 'info',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-      ),
-      transports: [
-        new winston.transports.File({ filename: 'hipaa-audit.log' }),
-        new winston.transports.Console({
-          format: winston.format.simple()
-        })
-      ]
-    });
-  }
-
-  /**
-   * Log encryption operations
-   */
-  public logEncryption(details: any): void {
-    this.logger.info('PHI_ENCRYPTION', details);
-  }
-
-  /**
-   * Log decryption operations
-   */
-  public logDecryption(details: any): void {
-    this.logger.info('PHI_DECRYPTION', details);
-  }
-
-  /**
-   * Log PHI access
-   */
-  public logAccess(details: {
-    userId: string;
-    action: string;
-    resource: string;
-    timestamp: string;
-    ip?: string;
-  }): void {
-    this.logger.info('PHI_ACCESS', details);
-  }
-
-  /**
-   * Log PHI modification
-   */
-  public logModification(details: {
-    userId: string;
-    action: string;
-    resource: string;
-    changes: any;
-    timestamp: string;
-  }): void {
-    this.logger.info('PHI_MODIFICATION', details);
-  }
-
-  /**
-   * Log authentication events
-   */
-  public logAuthentication(details: {
-    userId: string;
-    action: 'login' | 'logout' | 'failed_login';
-    timestamp: string;
-    ip?: string;
-  }): void {
-    this.logger.info('AUTHENTICATION', details);
-  }
-
-  /**
-   * Log security events
-   */
-  public logSecurityEvent(details: {
+  async validateCompliance(operation: {
     type: string;
-    severity: 'low' | 'medium' | 'high' | 'critical';
-    description: string;
-    timestamp: string;
-  }): void {
-    this.logger.warn('SECURITY_EVENT', details);
+    userId: string;
+    hasEncryption: boolean;
+    hasAuditLog: boolean;
+  }): Promise<{
+    compliant: boolean;
+    issues: string[];
+  }> {
+    const issues: string[] = [];
+
+    // Check for AES-256-GCM encryption
+    if (!operation.hasEncryption) {
+      issues.push('Data must be encrypted using AES-256-GCM');
+    }
+
+    // Check for audit logging (AuditLogger must be used)
+    if (!operation.hasAuditLog) {
+      issues.push('All PHI access must be logged using AuditLogger');
+    }
+
+    // Check for user authentication
+    if (!operation.userId) {
+      issues.push('User must be authenticated for PHI access');
+    }
+
+    return {
+      compliant: issues.length === 0,
+      issues
+    };
+  }
+
+  /**
+   * Emergency access procedure with enhanced logging
+   */
+  async emergencyAccess(
+    userId: string,
+    patientId: string,
+    reason: string
+  ): Promise<void> {
+    await this.auditLogger.logPHIAccess({
+      userId,
+      action: 'EMERGENCY_ACCESS',
+      resource: `patient:${patientId}`,
+      metadata: {
+        reason,
+        timestamp: new Date(),
+        flagged: true
+      },
+      success: true
+    });
+  }
+
+  /**
+   * Data retention compliance check
+   */
+  async checkDataRetention(
+    dataType: string,
+    createdDate: Date
+  ): Promise<{
+    shouldRetain: boolean;
+    daysRemaining: number;
+  }> {
+    const retentionPeriods = {
+      'clinical_notes': 2555, // 7 years
+      'audit_logs': 2190,     // 6 years
+      'session_data': 365,    // 1 year
+      'temporary_data': 30    // 30 days
+    };
+
+    const retentionDays = retentionPeriods[dataType] || 2555;
+    const daysSinceCreation = Math.floor(
+      (Date.now() - createdDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    return {
+      shouldRetain: daysSinceCreation < retentionDays,
+      daysRemaining: Math.max(0, retentionDays - daysSinceCreation)
+    };
   }
 }
-
-export default HIPAAComplianceManager;

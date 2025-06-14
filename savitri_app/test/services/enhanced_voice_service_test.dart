@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
 import 'package:savitri_app/services/enhanced_therapeutic_voice_service.dart';
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:io';
 import 'package:path/path.dart' as path;
 import '../test_helpers.dart';
@@ -227,7 +226,7 @@ void main() {
       await service.startRecording();
       expect(service.status, RecordingStatus.recording);
       
-      final recordingPath = service.currentRecordingPath;
+//       final recordingPath = service.currentRecordingPath;
       
       // Stop recording
       final result = await service.stopRecording();

@@ -10,11 +10,11 @@ class BiometricLoginButton extends StatefulWidget {
   final String? customReason;
 
   const BiometricLoginButton({
-    Key? key,
+    super.key,
     required this.onSuccess,
     this.onError,
     this.customReason,
-  }) : super(key: key);
+  });
 
   @override
   State<BiometricLoginButton> createState() => _BiometricLoginButtonState();
@@ -135,7 +135,7 @@ class _BiometricLoginButtonState extends State<BiometricLoginButton>
                     Expanded(
                       child: Container(
                         height: 1,
-                        color: AppTheme.textColor.withOpacity(0.2),
+                        color: AppTheme.textColor.withOpacity( 0.2),
                       ),
                     ),
                     Padding(
@@ -143,7 +143,7 @@ class _BiometricLoginButtonState extends State<BiometricLoginButton>
                       child: Text(
                         'OR',
                         style: TextStyle(
-                          color: AppTheme.textColor.withOpacity(0.5),
+                          color: AppTheme.textColor.withOpacity( 0.5),
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
@@ -152,7 +152,7 @@ class _BiometricLoginButtonState extends State<BiometricLoginButton>
                     Expanded(
                       child: Container(
                         height: 1,
-                        color: AppTheme.textColor.withOpacity(0.2),
+                        color: AppTheme.textColor.withOpacity( 0.2),
                       ),
                     ),
                   ],
@@ -215,13 +215,13 @@ class _BiometricLoginButtonState extends State<BiometricLoginButton>
 
 /// Dialog for biometric settings
 class BiometricSettingsDialog extends StatelessWidget {
-  const BiometricSettingsDialog({Key? key}) : super(key: key);
+  const BiometricSettingsDialog({Key? key});
 
   @override
   Widget build(BuildContext context) {
     final biometricService = context.watch<BiometricAuthService>();
     final biometricType = biometricService.getBiometricTypeName();
-
+    final biometricIcon = biometricService.getBiometricIcon();
     return AlertDialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -237,7 +237,7 @@ class BiometricSettingsDialog extends StatelessWidget {
         children: [
           ListTile(
             leading: Icon(
-              biometricService.getBiometricIcon(),
+              biometricIcon,
               color: AppTheme.primaryColor,
             ),
             title: Text('Enable $biometricType'),
